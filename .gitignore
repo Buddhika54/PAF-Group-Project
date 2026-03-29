@@ -71,4 +71,8 @@ application-local.properties
 *.env
 
 .DS_Store
+<<<<<<< HEAD
 Thumbs.db
+=======
+Thumbs.db
+>>>>>>> 2e205a0460b57e23e514803a1c129f2ab1e0d0d8
