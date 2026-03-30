@@ -13,6 +13,7 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<booking, Long> {
 
+        /* 
     // Find bookings by user
     List<booking> findByUserIdOrderByCreatedAtDesc(Long userId);
 
@@ -57,5 +58,6 @@ public interface BookingRepository extends JpaRepository<booking, Long> {
 
     long countByUserIdAndStatus(Long userId, booking.BookingStatus status);
 
-    long countByResourceId(Long resourceId);
+    //long countByResourceId(Long resourceId);
+    */
 }
