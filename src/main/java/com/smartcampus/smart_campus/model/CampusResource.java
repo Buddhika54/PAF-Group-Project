@@ -27,7 +27,7 @@ public class CampusResource {
 
     private String imageUrl;
 
-    // 🔥 NEW: maintenance reminder
+    //  maintenance reminder
     private String maintenanceNote;
 
     private LocalDateTime createdAt;

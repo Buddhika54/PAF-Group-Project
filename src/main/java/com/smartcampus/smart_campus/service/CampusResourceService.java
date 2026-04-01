@@ -24,7 +24,8 @@ public class CampusResourceService {
         return list.stream()
                 .filter(r -> type == null || r.getType().name().equalsIgnoreCase(type))
                 .filter(r -> capacity == null || (r.getCapacity() != null && r.getCapacity() >= capacity))
-                .filter(r -> location == null || r.getLocation().toLowerCase().contains(location.toLowerCase()))
+                .filter(r -> location == null || 
+                    (r.getLocation() != null && r.getLocation().toLowerCase().contains(location.toLowerCase())))
                 .toList();
     }
 
