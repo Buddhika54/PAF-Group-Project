@@ -33,6 +33,11 @@ public class CampusResourceController {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<CampusResource>> getByType(@PathVariable String type) {
+    return ResponseEntity.ok(service.getAll(type, null, null));
+    }
+
     // CREATE (multipart for image)
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<CampusResource> create(
@@ -60,16 +65,6 @@ public class CampusResourceController {
         return ResponseEntity.ok(service.create(r, image));
     }
 
-    //Show error
-@PostMapping
-public ResponseEntity<?> create(@RequestBody CampusResource resource) {
-    try {
-        return ResponseEntity.ok(service.create(resource, null));
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body(e.getMessage()); // ✅ show real error
-    }
-}
     
 
     // UPDATE
