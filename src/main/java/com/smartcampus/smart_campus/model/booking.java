@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "bookings")
-public class booking {
+public class Booking{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +20,9 @@ public class booking {
     @Column(nullable = false)
     private String username;
 
-    /*@ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "resource_id", nullable = false)
-    private CampusResource resource;*/
+    private CampusResource resource;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reviewed_by")
@@ -74,8 +74,8 @@ public class booking {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-    /*public CampusResource getResource() { return resource; }
-    public void setResource(CampusResource resource) { this.resource = resource; }*/
+    public CampusResource getResource() { return resource; }
+    public void setResource(CampusResource resource) { this.resource = resource; }
 
     public User getReviewedBy() { return reviewedBy; }
     public void setReviewedBy(User reviewedBy) { this.reviewedBy = reviewedBy; }
