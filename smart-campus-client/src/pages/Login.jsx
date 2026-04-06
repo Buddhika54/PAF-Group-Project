@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { isAuthenticated, isAdmin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -62,13 +63,13 @@ export default function Login() {
       const data = await response.json();
       localStorage.setItem("token", data.token);
 
-      if (data.role === "ADMIN") {
-        navigate("/admin/dashboard");
-      } else if (data.role === "TECHNICIAN") {
-        navigate("/technician/dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+// force refresh auth state (VERY IMPORTANT)
+window.location.href =
+  data.role === "ADMIN"
+    ? "/admin/dashboard"
+    : data.role === "TECHNICIAN"
+      ? "/technician/dashboard"
+      : "/dashboard";
 
     } catch (err) {
       setError("Cannot connect to server. Make sure backend is running.");

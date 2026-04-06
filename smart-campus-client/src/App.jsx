@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Register from './pages/Register';
+import { Navigate } from 'react-router-dom';
 
 function App() {
   return (
@@ -18,10 +19,7 @@ function App() {
 
 
         {/* Member 1 */}
-        <Route path="/admin/resources" element={<Resources />} />
-        <Route path="/admin/resources/add" element={<AddResource />} />
-        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
-        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+        
           {/* Member 2 */}
         {/* ── Toast Notifications ──────────────────────── */}
         <Toaster
@@ -83,9 +81,15 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/bookings" element={<div>Admin Bookings</div>} />
           <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
-          <Route path="/admin/resources" element={<div>Admin Resources</div>} />
+          
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
           <Route path="/admin/users" element={<div>Admin Users</div>} />
+
+
+          <Route path="/admin/resources" element={<Resources />} />
+        <Route path="/admin/resources/add" element={<AddResource />} />
+        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
@@ -115,3 +119,4 @@ function App() {
 }
 
 export default App;
+
