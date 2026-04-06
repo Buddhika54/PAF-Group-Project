@@ -1,27 +1,41 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider, PrivateRoute, AdminRoute } from './context/AuthContext';
 
-// Each member fills in their own pages
-// Leader creates placeholder pages for now
+// User pages
+import NewTicket from './pages/NewTicket';
+import Tickets from './pages/Tickets';
+import TicketDetail from './pages/TicketDetail';
 
-function App() {
+// Admin pages
+import AdminTickets from './pages/AdminTickets';
+
+export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Member 4 */}
-        <Route path="/login" element={<div>Login Page</div>} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: { borderRadius: '12px', fontFamily: 'Inter, sans-serif', fontSize: '14px' },
+            success: { iconTheme: { primary: '#22c55e', secondary: 'white' } },
+            error: { iconTheme: { primary: '#ef4444', secondary: 'white' } },
+          }}
+        />
 
-        {/* Member 1 */}
-        <Route path="/resources" element={<div>Resource List</div>} />
-        <Route path="/resources/:id" element={<div>Resource Detail</div>} />
+        <Routes>
+          {/* User protected routes */}
+          <Route path="/tickets/new" element={<PrivateRoute><NewTicket /></PrivateRoute>} />
+          <Route path="/tickets" element={<PrivateRoute><Tickets /></PrivateRoute>} />
+          <Route path="/tickets/:id" element={<PrivateRoute><TicketDetail /></PrivateRoute>} />
 
-        {/* Member 2 */}
-        <Route path="/bookings" element={<div>Bookings</div>} />
+          {/* Admin only routes */}
+          <Route path="/admin/tickets" element={<AdminRoute><AdminTickets /></AdminRoute>} />
 
-        {/* Member 3 */}
-        <Route path="/tickets" element={<div>Tickets</div>} />
-      </Routes>
-    </BrowserRouter>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App;
