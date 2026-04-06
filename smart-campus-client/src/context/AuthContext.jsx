@@ -33,17 +33,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token) => {
-    const decoded = jwtDecode(token);
-    localStorage.setItem('token', token);
-    setToken(token);
-    setUser({
-      id: decoded.id,
-      name: decoded.name,
-      email: decoded.sub,
-      picture: decoded.picture,
-      role: decoded.role,
-    });
-  };
+  localStorage.setItem('token', token);
+  const decoded = jwtDecode(token);
+
+  setToken(token);
+  setUser({
+    id: decoded.id,
+    name: decoded.name,
+    email: decoded.sub,
+    picture: decoded.picture,
+    role: decoded.role || "USER",
+  });
+};
 
   const logout = () => {
     localStorage.clear();

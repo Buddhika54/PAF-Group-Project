@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { isAuthenticated, isAdmin } = useAuth();
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -40,37 +39,36 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        }
-      );
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email,
+    password,
+  }),
+});
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError("Invalid email or password");
-        } else if (response.status === 403) {
-          setError("Your account has been disabled. Contact admin.");
-        } else {
-          setError("Something went wrong. Try again.");
-        }
-        return;
-      }
+const data = await res.json();
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+console.log("LOGIN DATA:", data);
 
-// force refresh auth state (VERY IMPORTANT)
+// FIX ROLE ACCESS
+const role = data?.data?.role || data?.role;
+
+if (!role) {
+  console.error("ROLE NOT FOUND", data);
+  return;
+}
+
 window.location.href =
-  data.role === "ADMIN"
+  role === "ADMIN"
     ? "/admin/dashboard"
-    : data.role === "TECHNICIAN"
+    : role === "TECHNICIAN"
       ? "/technician/dashboard"
       : "/dashboard";
-
+      
     } catch (err) {
       setError("Cannot connect to server. Make sure backend is running.");
     } finally {
