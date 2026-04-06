@@ -69,5 +69,6 @@ target/
 
 application-local.properties
 *.env
+application.properties
 
 
