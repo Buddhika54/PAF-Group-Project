@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
-  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -28,19 +27,20 @@ api.interceptors.response.use(
 );
 
 //_____Resource_____
-export const resourceAPI = {
-  getAll: (params) => api.get('/resources', { params })
-};
 
 //_____Booking_____
 export const bookingAPI = {
-    create: (data) => api.post('/bookings', data),
-    getMyBookings: () => api.get('/bookings/my'),
-    cancel: (id) => api.put(`/bookings/${id}/cancel`),
-    getMyStats: () => api.get('/bookings/my/stats'),
-    getAll: () => api.get('/bookings'),
-    getById: (id) => api.get(`/bookings/${id}`),
-    approve: (id) => api.put(`/bookings/${id}/approve`)
+    create:       (data) => api.post('/bookings', data),
+    getMyBookings:()     => api.get('/bookings/my'),
+    getMyStats:   ()     => api.get('/bookings/my/stats'),
+    getAll:       ()     => api.get('/bookings'),
+    getById:      (id)   => api.get(`/bookings/${id}`),
+    approve:      (id)   => api.put(`/bookings/${id}/approve`),
+    reject:       (id, reason) => api.put(
+        `/bookings/${id}/reject`,
+        { rejectionReason: reason }
+    ),
+    cancel:       (id)   => api.put(`/bookings/${id}/cancel`),
 }
 
 //_____Ticket_____

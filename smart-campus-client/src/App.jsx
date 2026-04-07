@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, PrivateRoute } from './context/AuthContext';
 
 import Login from './pages/Login';
+import Homepage from './pages/Homepage';
 import AuthCallback from './pages/AuthCallback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Register from './pages/Register';
@@ -16,7 +17,6 @@ import UserDashboard from './pages/user/UserDashboard';
 import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
 import { Navigate } from 'react-router-dom';
-import HomePage from './pages/Homepage';
 
 function App() {
   return (
@@ -65,14 +65,14 @@ function App() {
         <Routes>
 
           {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Homepage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/bookings/new" element={<PrivateRoute><NewBooking /></PrivateRoute>} />
+          <Route path="/bookings/new" element={<NewBooking />} />
 
           {/* Admin Routes wrapped in Navbar */}
           {/* <Route
@@ -97,9 +97,9 @@ function App() {
 
 
           <Route path="/admin/resources" element={<Resources />} />
-          <Route path="/admin/resources/add" element={<AddResource />} />
-          <Route path="/admin/resources/edit/:id" element={<EditResource />} />
-          <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+        <Route path="/admin/resources/add" element={<AddResource />} />
+        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           <Route path="/dashboard" element={<div>User Dashboard</div>} />

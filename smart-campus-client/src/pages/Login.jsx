@@ -50,17 +50,42 @@ export default function Login() {
   }),
 });
 
+if (!res.ok) {
+        if (res.status === 401) {
+          setError("Invalid email or password");
+        } else if (res.status === 403) {
+          setError("Your account has been disabled. Contact admin.");
+        } else {
+          setError("Something went wrong. Try again.");
+        }
+        return;
+      }
+
 const data = await res.json();
 
 console.log("LOGIN DATA:", data);
 
-// FIX ROLE ACCESS
+const token = data?.data?.token;
 const role = data?.data?.role || data?.role;
 
+if (!token) {
+  console.error("TOKEN NOT FOUND", data);
+  setError("Login failed. No token received");
+  return;
+}
+
+// ✅ store token
+localStorage.setItem("token", token);
+
+// (optional)
+localStorage.setItem("role", role);
+
+// FIX ROLE ACCESS
 if (!role) {
   console.error("ROLE NOT FOUND", data);
   return;
 }
+
 
 window.location.href =
   role === "ADMIN"
