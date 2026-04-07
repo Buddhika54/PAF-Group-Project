@@ -18,7 +18,91 @@ public class CampusResourceController {
     @Autowired
     private CampusResourceService service;
 
-    // GET ALL + FILTER
+    // CREATE
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<CampusResource> create(
+            @RequestParam String name,
+            @RequestParam String type,
+
+            @RequestParam(required = false) Integer capacity,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String building,
+
+            @RequestParam(required = false) String availabilityStart,
+            @RequestParam(required = false) String availabilityEnd,
+
+            @RequestParam Boolean isBookable,
+            @RequestParam(required = false) String maintenanceNote,
+            @RequestParam(required = false) String specialNotes,
+            @RequestParam(required = false) MultipartFile image
+    ) throws Exception {
+
+        CampusResource r = new CampusResource();
+        r.setName(name);
+        r.setType(CampusResource.ResourceType.valueOf(type));
+
+        r.setCapacity(capacity);
+        r.setLocation(location);
+        r.setBuilding(building);
+        r.setSpecialNotes(specialNotes);        // Now safe
+
+        // Combine time range
+        String availability = "";
+        if (availabilityStart != null && !availabilityStart.isEmpty() &&
+            availabilityEnd != null && !availabilityEnd.isEmpty()) {
+            availability = availabilityStart + " - " + availabilityEnd;
+        }
+        r.setAvailabilityWindows(availability);
+
+        r.setIsBookable(isBookable);
+        r.setMaintenanceNote(maintenanceNote);
+
+        return ResponseEntity.ok(service.create(r, image));
+    }
+
+    // UPDATE (same pattern)
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<CampusResource> update(
+            @PathVariable Long id,
+            @RequestParam String name,
+            @RequestParam String type,
+
+            @RequestParam(required = false) Integer capacity,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String building,
+
+            @RequestParam(required = false) String availabilityStart,
+            @RequestParam(required = false) String availabilityEnd,
+
+            @RequestParam Boolean isBookable,
+            @RequestParam(required = false) String maintenanceNote,
+            @RequestParam(required = false) String specialNotes,
+            @RequestParam(required = false) MultipartFile image
+    ) throws Exception {
+
+        CampusResource r = new CampusResource();
+        r.setName(name);
+        r.setType(CampusResource.ResourceType.valueOf(type));
+
+        r.setCapacity(capacity);
+        r.setLocation(location);
+        r.setBuilding(building);
+        r.setSpecialNotes(specialNotes);
+
+        String availability = "";
+        if (availabilityStart != null && !availabilityStart.isEmpty() &&
+            availabilityEnd != null && !availabilityEnd.isEmpty()) {
+            availability = availabilityStart + " - " + availabilityEnd;
+        }
+        r.setAvailabilityWindows(availability);
+
+        r.setIsBookable(isBookable);
+        r.setMaintenanceNote(maintenanceNote);
+
+        return ResponseEntity.ok(service.update(id, r, image));
+    }
+
+    // Other methods remain the same...
     @GetMapping
     public ResponseEntity<List<CampusResource>> getAll(
             @RequestParam(required = false) String type,
@@ -33,66 +117,10 @@ public class CampusResourceController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @GetMapping("/type/{type}")
-    public ResponseEntity<List<CampusResource>> getByType(@PathVariable String type) {
-    return ResponseEntity.ok(service.getAll(type, null, null));
-    }
-
-    // CREATE (multipart for image)
-    @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<CampusResource> create(
-            @RequestParam String name,
-            @RequestParam String type,
-            @RequestParam Integer capacity,
-            @RequestParam String location,
-            @RequestParam String building,
-            @RequestParam String availabilityWindows,
-            @RequestParam Boolean isBookable,
-            @RequestParam(required = false) String maintenanceNote,
-            @RequestParam(required = false) MultipartFile image
-    ) throws Exception {
-
-        CampusResource r = new CampusResource();
-        r.setName(name);
-        r.setType(CampusResource.ResourceType.valueOf(type));
-        r.setCapacity(capacity);
-        r.setLocation(location);
-        r.setBuilding(building);
-        r.setAvailabilityWindows(availabilityWindows);
-        r.setIsBookable(isBookable);
-        r.setMaintenanceNote(maintenanceNote);
-
-        return ResponseEntity.ok(service.create(r, image));
-    }
-
-    
-
-    // UPDATE
-    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
-    public ResponseEntity<CampusResource> update(
-            @PathVariable Long id,
-            @RequestParam String name,
-            @RequestParam String type,
-            @RequestParam Integer capacity,
-            @RequestParam String location,
-            @RequestParam String building,
-            @RequestParam String availabilityWindows,
-            @RequestParam Boolean isBookable,
-            @RequestParam(required = false) String maintenanceNote,
-            @RequestParam(required = false) MultipartFile image
-    ) throws Exception {
-
-        CampusResource r = new CampusResource();
-        r.setName(name);
-        r.setType(CampusResource.ResourceType.valueOf(type));
-        r.setCapacity(capacity);
-        r.setLocation(location);
-        r.setBuilding(building);
-        r.setAvailabilityWindows(availabilityWindows);
-        r.setIsBookable(isBookable);
-        r.setMaintenanceNote(maintenanceNote);
-
-        return ResponseEntity.ok(service.update(id, r, image));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     // STATUS CHANGE
@@ -101,14 +129,7 @@ public class CampusResourceController {
         service.updateStatus(id, body.get("status"));
         return ResponseEntity.ok().build();
     }
-
-    // DELETE
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
+    
     // STATS
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Long>> stats() {
