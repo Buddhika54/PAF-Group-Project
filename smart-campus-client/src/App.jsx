@@ -1,5 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Resources from './pages/resource/Resources';
+import ResourceDetails from './pages/resource/ResourceDetails';
+import EditResource from './pages/resource/EditResource';
+import AddResource from './pages/resource/AddResource'; 
 import { Toaster } from 'react-hot-toast';
+
 import { AuthProvider, PrivateRoute } from './context/AuthContext';
 
 import Login from './pages/Login';
@@ -9,12 +15,17 @@ import Register from './pages/Register';
 import UserDashboard from './pages/user/UserDashboard';
 import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
+import { Navigate } from 'react-router-dom';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
 
+
+        {/* Member 1 */}
+        
+          {/* Member 2 */}
         {/* ── Toast Notifications ──────────────────────── */}
         <Toaster
           position="top-right"
@@ -79,9 +90,15 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/bookings" element={<div>Admin Bookings</div>} />
           <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
-          <Route path="/admin/resources" element={<div>Admin Resources</div>} />
+          
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
           <Route path="/admin/users" element={<div>Admin Users</div>} />
+
+
+          <Route path="/admin/resources" element={<Resources />} />
+        <Route path="/admin/resources/add" element={<AddResource />} />
+        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
@@ -111,3 +128,4 @@ function App() {
 }
 
 export default App;
+

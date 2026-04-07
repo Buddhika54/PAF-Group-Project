@@ -67,7 +67,9 @@ public class SecurityConfig {
                     "/api/public/**",
                     "/oauth2/**",
                     "/login/**",
-                    "/error"
+                    "/error",
+                    "/admin/**",
+                "/api/resources/**"
                 ).permitAll()
 
                 // Module A — anyone can READ resources
