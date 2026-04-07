@@ -16,6 +16,7 @@ import UserDashboard from './pages/user/UserDashboard';
 import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
 import { Navigate } from 'react-router-dom';
+import HomePage from './pages/Homepage';
 
 function App() {
   return (
@@ -64,7 +65,7 @@ function App() {
         <Routes>
 
           {/* Public Routes */}
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
@@ -96,9 +97,9 @@ function App() {
 
 
           <Route path="/admin/resources" element={<Resources />} />
-        <Route path="/admin/resources/add" element={<AddResource />} />
-        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
-        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+          <Route path="/admin/resources/add" element={<AddResource />} />
+          <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+          <Route path="/admin/resources/:id" element={<ResourceDetails />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
@@ -118,8 +119,8 @@ function App() {
           <Route path="/tickets" element={<div>Tickets</div>} />
           <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
 
-          {/* ── 404 Fallback ───────────────────────────── */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* ── 404 Fallback ───────────────────────────── 
+          <Route path="*" element={<Navigate to="/login" replace />} />*/}
 
         </Routes>
       </BrowserRouter>
