@@ -7,6 +7,9 @@ import AuthCallback from './pages/AuthCallback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Register from './pages/Register';
 
+import UserDashboard from './pages/user/UserDashboard';
+import Tickets from './pages/user/Tickets';
+import TicketDetail from './pages/user/TicketDetail';
 function App() {
   return (
     <AuthProvider>
@@ -77,7 +80,7 @@ function App() {
           <Route path="/admin/users" element={<div>Admin Users</div>} />
 
           {/* ── User Dashboard ─────────────────────────── */}
-          <Route path="/dashboard" element={<div>User Dashboard</div>} />
+          <Route path="/dashboard" element={<UserDashboard/>} />
 
           {/* ── Technician Dashboard ───────────────────── */}
           <Route path="/technician/dashboard" element={<div>Technician Dashboard</div>} />
@@ -91,8 +94,8 @@ function App() {
           <Route path="/my-bookings" element={<div>My Bookings</div>} />
 
           {/* ── Member 3 — Tickets ─────────────────────── */}
-          <Route path="/tickets" element={<div>Tickets</div>} />
-          <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
+          <Route path="/tickets" element={<Tickets/>} />
+          <Route path="/tickets/:id" element={<TicketDetail/>} />
 
           {/* ── 404 Fallback ───────────────────────────── */}
           <Route path="*" element={<Navigate to="/login" replace />} />

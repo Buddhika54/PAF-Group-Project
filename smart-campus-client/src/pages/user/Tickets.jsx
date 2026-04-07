@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ticketAPI } from '../../services/api';
-import Navbar from "../../components/layout/Navbar";
+import { ticketAPI } from '../services/api';
+import Navbar from "../components/layout/Navbar";
 
 const TABS = ['ALL','OPEN','IN_PROGRESS','RESOLVED','CLOSED'];
 const priorityClr = { CRITICAL: 'bg-red-100 text-red-700', HIGH: 'bg-orange-100 text-orange-700',

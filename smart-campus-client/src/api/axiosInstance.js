@@ -32,4 +32,11 @@ export const bookingAPI = {
     create: (data) => api.post('/api/bookings', data),
 }
 
+export const ticketAPI = {
+  getMyTickets: () => api.get('/tickets/my'),
+  getById: (id) => api.get(`/tickets/${id}`),
+  create: (data) => api.post('/tickets', data),
+  getAll: () => api.get('/tickets'),
+};
+
 export default api;
