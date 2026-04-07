@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { resourceAPI, bookingAPI } from '../../api/axiosInstance';
+import {bookingAPI } from '../../api/axiosInstance';
+import {resourceAPI} from '../../services/resourceAPI';
 import { toast } from 'react-hot-toast';
 import Navbar from '../../components/layout/Navbar';
 
