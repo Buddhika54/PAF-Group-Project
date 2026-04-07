@@ -17,6 +17,7 @@ import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
 import { Navigate } from 'react-router-dom';
 import HomePage from './pages/Homepage';
+import TechnicianResources from './pages/Technician/TechnicianResource';
 
 function App() {
   return (
@@ -105,7 +106,7 @@ function App() {
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
 
           {/* ── Technician Dashboard ───────────────────── */}
-          <Route path="/technician/dashboard" element={<div>Technician Dashboard</div>} />
+          <Route path="/technician/dashboard" element={<TechnicianResources />} />
 
           {/* ── Member 1 — Resources ───────────────────── */}
           <Route path="/resources" element={<div>Resource List</div>} />
