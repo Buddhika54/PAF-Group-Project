@@ -11,6 +11,7 @@ import AuthCallback from './pages/AuthCallback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Register from './pages/Register';
 import { Navigate } from 'react-router-dom';
+import TechnicianResources from './pages/Technician/TechnicianResource';
 
 function App() {
   return (
@@ -95,7 +96,7 @@ function App() {
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
 
           {/* ── Technician Dashboard ───────────────────── */}
-          <Route path="/technician/dashboard" element={<div>Technician Dashboard</div>} />
+          <Route path="/technician/dashboard" element={<TechnicianResources />} />
 
           {/* ── Member 1 — Resources ───────────────────── */}
           <Route path="/resources" element={<div>Resource List</div>} />
