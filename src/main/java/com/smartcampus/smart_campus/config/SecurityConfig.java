@@ -60,7 +60,9 @@ public class SecurityConfig {
                     "/api/public/**",
                     "/oauth2/**",
                     "/login/**",
-                    "/error"
+                    "/error",
+                    "/admin/**",
+                "/api/resources/**"
                 ).permitAll()
                 // Everything else requires a valid JWT
                 .anyRequest().authenticated()
