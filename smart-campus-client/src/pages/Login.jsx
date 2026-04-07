@@ -162,7 +162,7 @@ window.location.href =
             </label>
             <input
               type="email"
-              placeholder="your@sliit.lk"
+              placeholder="ITXXXXXXXX@sliit.lk"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}

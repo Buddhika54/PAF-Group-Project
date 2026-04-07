@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-//import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 //import { notificationAPI } from '../../api/axiosInstance';
 
@@ -45,14 +45,14 @@ export default function Navbar({ children }) {
     return (
         <div className="flex h-screen bg-gray-50 overflow-hidden">
             {/* Sidebar */}
-            <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-slate-900 flex flex-col flex-shrink-0`}>
+            <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-teal-800 flex flex-col flex-shrink-0`}>
                 {/* Logo */}
                 <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-700">
                     {/* changed gradient */}
-                    <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-sm font-bold">SC</span>
+                    <div className="w-9 h-9 bg-gradient-to-br from-slate-900 to-slate-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-sm font-bold">SLIIT</span>
                     </div>
-                    {sidebarOpen && <span className="text-white font-bold text-lg whitespace-nowrap">Smart Campus</span>}
+                    {sidebarOpen && <span className="text-white font-bold text-lg whitespace-nowrap">Dashboard</span>}
                 </div>
 
                 {/* Nav links */}
@@ -61,7 +61,7 @@ export default function Navbar({ children }) {
                         const active = location.pathname === link.path;
                         return (
                             <Link key={link.path} to={link.path}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${active ? 'bg-teal-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${active ? 'bg-slate-900 text-white' : 'text-white hover:bg-slate-800 hover:text-white'
                                     }`}>
                                 <span className="text-lg flex-shrink-0">{link.icon}</span>
                                 {sidebarOpen && <span className="text-sm font-medium whitespace-nowrap">{link.label}</span>}
