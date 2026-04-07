@@ -1,6 +1,8 @@
 package com.smartcampus.smart_campus.model;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "campus_resources")
 public class CampusResource {
@@ -22,13 +24,17 @@ public class CampusResource {
     @Enumerated(EnumType.STRING)
     private ResourceStatus status = ResourceStatus.ACTIVE;
 
-    private String availabilityWindows; // e.g., "Mon-Fri 8-5"
-    private Boolean isBookable = true;
+    private String availabilityWindows; 
 
+    private Boolean isBookable = true;
     private String imageUrl;
 
-    //  maintenance reminder
+    // maintenance reminder
     private String maintenanceNote;
+
+    // New field for EQUIPMENT type (brand, model, specs, etc.)
+    @Column(length = 1000)
+    private String specialNotes;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -52,112 +58,48 @@ public class CampusResource {
         ACTIVE, OUT_OF_SERVICE, UNDER_MAINTENANCE
     }
 
+    // ==================== GETTERS & SETTERS ====================
 
-    // getters & setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public ResourceType getType() { return type; }
+    public void setType(ResourceType type) { this.type = type; }
 
-    public String getName() {
-        return name;
-    }
+    public Integer getCapacity() { return capacity; }
+    public void setCapacity(Integer capacity) { this.capacity = capacity; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
-    public ResourceType getType() {
-        return type;
-    }
+    public String getBuilding() { return building; }
+    public void setBuilding(String building) { this.building = building; }
 
-    public void setType(ResourceType type) {
-        this.type = type;
-    }
+    public ResourceStatus getStatus() { return status; }
+    public void setStatus(ResourceStatus status) { this.status = status; }
 
-    public Integer getCapacity() {
-        return capacity;
-    }
+    public String getAvailabilityWindows() { return availabilityWindows; }
+    public void setAvailabilityWindows(String availabilityWindows) { this.availabilityWindows = availabilityWindows; }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
+    public Boolean getIsBookable() { return isBookable; }
+    public void setIsBookable(Boolean isBookable) { this.isBookable = isBookable; }
 
-    public String getLocation() {
-        return location;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+    public String getMaintenanceNote() { return maintenanceNote; }
+    public void setMaintenanceNote(String maintenanceNote) { this.maintenanceNote = maintenanceNote; }
 
-    public String getBuilding() {
-        return building;
-    }
+    // NEW: Special Notes for Equipment
+    public String getSpecialNotes() { return specialNotes; }
+    public void setSpecialNotes(String specialNotes) { this.specialNotes = specialNotes; }
 
-    public void setBuilding(String building) {
-        this.building = building;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public ResourceStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ResourceStatus status) {
-        this.status = status;
-    }
-
-    public String getAvailabilityWindows() {
-        return availabilityWindows;
-    }
-
-    public void setAvailabilityWindows(String availabilityWindows) {
-        this.availabilityWindows = availabilityWindows;
-    }
-
-    public Boolean getIsBookable() {
-        return isBookable;
-    }
-
-    public void setIsBookable(Boolean isBookable) {
-        this.isBookable = isBookable;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getMaintenanceNote() {
-        return maintenanceNote;
-    }
-
-    public void setMaintenanceNote(String maintenanceNote) {
-        this.maintenanceNote = maintenanceNote;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
