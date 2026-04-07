@@ -27,9 +27,25 @@ api.interceptors.response.use(
   }
 );
 
+//_____Resource_____
+export const resourceAPI = {
+  getAll: (params) => api.get('/resources', { params })
+};
+
 //_____Booking_____
 export const bookingAPI = {
-    create: (data) => api.post('/api/bookings', data),
+    create: (data) => api.post('/bookings', data),
+    getMyBookings: () => api.get('/bookings/my'),
+    cancel: (id) => api.put(`/bookings/${id}/cancel`),
+    getMyStats: () => api.get('/bookings/my/stats'),
+    getAll: () => api.get('/bookings'),
+    getById: (id) => api.get(`/bookings/${id}`),
+    approve: (id) => api.put(`/bookings/${id}/approve`)
+}
+
+//_____Ticket_____
+export const ticketAPI = {
+    create: (data) => api.post('/tickets', data),
 }
 
 export default api;

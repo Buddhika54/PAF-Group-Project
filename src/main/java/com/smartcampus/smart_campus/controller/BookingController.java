@@ -2,11 +2,13 @@ package com.smartcampus.smart_campus.controller;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +22,7 @@ import com.smartcampus.smart_campus.repository.CampusResourceRepository;
 import com.smartcampus.smart_campus.service.BookingService;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/bookings")
 public class BookingController {
 
     @Autowired
@@ -78,5 +80,18 @@ public class BookingController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Booking>> getMyBookings(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return ResponseEntity.ok(bookingservice.getMyBookings(user.getId()));
+    }
+
+    @GetMapping("/my/stats")
+    public ResponseEntity<Map<String, Long>> getMyStats(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return ResponseEntity.ok(bookingservice.getUserStats(user.getId()));
+    }
+
 }
 

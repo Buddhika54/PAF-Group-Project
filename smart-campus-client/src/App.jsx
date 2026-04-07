@@ -1,11 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, PrivateRoute } from './context/AuthContext';
 
 import Login from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Register from './pages/Register';
+import UserDashboard from './pages/user/UserDashboard';
+import MyBookings from './pages/user/MyBooking';
+import NewBooking from './pages/user/NewBooking';
 
 function App() {
   return (
@@ -54,6 +57,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/bookings/new" element={<PrivateRoute><NewBooking /></PrivateRoute>} />
 
           {/* Admin Routes wrapped in Navbar */}
           {/* <Route
