@@ -1,5 +1,5 @@
-//import { Outlet, Link, useLocation } from 'react-router-dom';
-//import { Home, Calendar, Wrench, Bell } from 'lucide-react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Home, Calendar, Wrench, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Layout() {

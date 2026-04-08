@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
-  withCredentials: true,
 });
 
 // Only add token if it exists (don't require it)
@@ -40,6 +39,7 @@ api.interceptors.response.use(
   }
 );
 
+
 export const bookingAPI = {
   create: (data) => api.post('/bookings', data),
 };
@@ -67,6 +67,7 @@ export const resourceAPI = {
 };
 
 export default api;
+
 
 
 

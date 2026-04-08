@@ -1,12 +1,17 @@
 import { useState } from 'react';
+<<<<<<< HEAD
 import Sidebar from '../../components/layout/Sidebar';
 import RecentTickets from '../../components/admin/RecentTickets'; // ← add this
+=======
+import { Link } from "react-router-dom";
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
 
   return (
+<<<<<<< HEAD
     <div className="flex h-screen bg-gray-950 overflow-hidden font-['Inter',sans-serif]">
       <Sidebar open={sidebarOpen} activeSection={activeSection} onNavigate={setActiveSection} />
 
@@ -47,3 +52,17 @@ export default function AdminDashboard() {
     </div>
   );
 }
+=======
+  <div className="p-6 text-white bg-gray-950 h-screen">
+    <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+    <p>Dashboard is loading successfully 🎉</p>
+    
+
+<Link to="/admin/resources" className="text-blue-500 hover:underline">
+  View Resources
+</Link>
+  </div>
+);
+
+}
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726

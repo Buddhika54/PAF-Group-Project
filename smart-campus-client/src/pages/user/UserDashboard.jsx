@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+<<<<<<< HEAD
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI, ticketAPI } from "../../api/axiosInstance";
 import Navbar from "../../components/layout/Navbar";
+=======
+import { useAuth } from '../../context/AuthContext';
+import { bookingAPI, ticketAPI } from '../../api/axiosInstance';
+import Navbar from '../../components/layout/Navbar';
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
 
 const StatCard = ({ label, value, color, icon }) => (
   <div className={`${color} rounded-2xl p-5 flex items-center gap-4 shadow-sm`}>
@@ -27,7 +33,11 @@ const priorityBadge = (p) => {
 };
 
 export default function UserDashboard() {
+<<<<<<< HEAD
   const user = { name: 'Test User', role: 'USER' };
+=======
+  const { user } = useAuth();
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
   const [bookingStats, setBookingStats] = useState({});
   const [ticketStats, setTicketStats] = useState({});
   const [recentBookings, setRecentBookings] = useState([]);
@@ -120,7 +130,11 @@ export default function UserDashboard() {
         </div>
 
         {/* Recent tickets */}
+<<<<<<< HEAD
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+=======
+        {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-800">Recent Tickets</h2>
             <Link to="/tickets" className="text-sm text-blue-600 hover:underline">View all</Link>
@@ -148,7 +162,11 @@ export default function UserDashboard() {
               )}
             </tbody>
           </table>
+<<<<<<< HEAD
         </div>
+=======
+        </div>*/}
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
       </div>
     </Navbar>
   );

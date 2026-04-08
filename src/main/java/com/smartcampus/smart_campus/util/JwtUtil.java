@@ -1,6 +1,6 @@
 package com.smartcampus.smart_campus.util;
 
-import io.jsonwebtoken.*;
+/*import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,9 +22,9 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
+    
      * Generate a JWT token with the user's email as the subject.
-     */
+     
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -34,16 +34,16 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
+    
      * Extract the email (subject) from a JWT token.
-     */
+     
     public String extractEmail(String token) {
         return parseClaims(token).getSubject();
     }
 
     /**
      * Validate the token: signature and expiry.
-     */
+     
     public boolean isTokenValid(String token) {
         try {
             Claims claims = parseClaims(token);
@@ -60,4 +60,4 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-}
+}*/

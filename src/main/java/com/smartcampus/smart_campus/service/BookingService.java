@@ -5,16 +5,17 @@ import com.smartcampus.smart_campus.model.CampusResource;
 import com.smartcampus.smart_campus.model.User;
 import com.smartcampus.smart_campus.repository.BookingRepository;
 import com.smartcampus.smart_campus.repository.CampusResourceRepository;
-import com.smartcampus.smart_campus.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import com.smartcampus.smart_campus.model.Booking.BookingStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class BookingService {
 
     @Autowired
@@ -24,10 +25,7 @@ public class BookingService {
     private CampusResourceRepository resourceRepository;
 
     @Autowired
-    private UserRepository userRepository;
-
-    //@Autowired
-    //private NotificationService notificationService;
+    private NotificationService notificationService;
 
     public Booking create(Booking booking, User user) {
         CampusResource resource = resourceRepository.findById(booking.getResource().getId())
@@ -39,72 +37,130 @@ public class BookingService {
 
         booking.setUser(user);
         booking.setResource(resource);
-        booking.setStatus(BookingStatus.PENDING);
+        booking.setStatus(Booking.BookingStatus.PENDING);
         return bookingRepository.save(booking);
     }
 
+    // ── Get user's bookings ──────────────────────
     public List<Booking> getMyBookings(Long userId) {
-        return bookingRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return bookingRepository
+            .findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    // ── Get all bookings (admin) ─────────────────
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+        return bookingRepository
+            .findAll();
     }
 
-    public Booking getById(Long id) {
+    // ── Get booking by ID ────────────────────────
+    public Booking getBookingById(Long id) {
         return bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+            .orElseThrow(() ->
+                new RuntimeException(
+                    "Booking not found with id: " + id));
     }
 
-    public Booking approve(Long id, User admin) {
-        Booking booking = getById(id);
+    // ── Approve booking ──────────────────────────
+    public Booking approveBooking(
+            Long id, User admin) {
+        Booking booking = getBookingById(id);
 
-        // Check for time conflicts among approved bookings
-        List<Booking> conflicts = bookingRepository.findConflictingApprovedBookings(
+        if (booking.getStatus() !=
+                Booking.BookingStatus.PENDING) {
+            throw new RuntimeException(
+                "Booking is not in PENDING state");
+        }
+
+        // Check time conflict
+        boolean conflict = bookingRepository
+            .existsConflict(
                 booking.getResource().getId(),
                 booking.getBookingDate(),
                 booking.getStartTime(),
                 booking.getEndTime(),
                 id
-        );
+            );
 
-        if (!conflicts.isEmpty()) {
-            throw new RuntimeException("CONFLICT: Resource already booked for this time slot");
+        if (conflict) {
+            throw new RuntimeException(
+                "Resource already booked " +
+                "for this time slot");
         }
 
-        booking.setStatus(BookingStatus.APPROVED);
+        booking.setStatus(Booking.BookingStatus.APPROVED);
         booking.setReviewedBy(admin);
-        booking.setReviewedAt(LocalDateTime.now());
         Booking saved = bookingRepository.save(booking);
-        // notificationService.notifyBookingApproved(saved);
+        notificationService.notifyBookingApproved(saved);
         return saved;
     }
 
-    public Booking reject(Long id, String reason, User admin) {
-        Booking booking = getById(id);
-        booking.setStatus(BookingStatus.REJECTED);
+    // ── Reject booking ───────────────────────────
+    public Booking rejectBooking(
+            Long id, User admin, String reason) {
+        Booking booking = getBookingById(id);
+
+        if (booking.getStatus() !=
+                Booking.BookingStatus.PENDING) {
+            throw new RuntimeException(
+                "Booking is not in PENDING state");
+        }
+
+        booking.setStatus(Booking.BookingStatus.REJECTED);
         booking.setRejectionReason(reason);
         booking.setReviewedBy(admin);
-        booking.setReviewedAt(LocalDateTime.now());
-        Booking saved = bookingRepository.save(booking);
-        // notificationService.notifyBookingRejected(saved);
-        return saved;
+        return bookingRepository.save(booking);
     }
 
-    public Booking cancel(Long id, User user) {
-        Booking booking = getById(id);
-        booking.setStatus(BookingStatus.CANCELLED);
-        Booking saved = bookingRepository.save(booking);
-        // notificationService.notifyBookingCancelled(saved);
-        return saved;
+    // ── Cancel booking ───────────────────────────
+    public Booking cancelBooking(
+            Long id, User user) {
+        Booking booking = getBookingById(id);
+
+        boolean isOwner = booking.getUsername()
+            .equals(user.getUsername());
+        boolean isAdmin = user.getRole()
+            .name().equals("ADMIN");
+
+        if (!isOwner && !isAdmin) {
+            throw new RuntimeException(
+                "You cannot cancel this booking");
+        }
+
+        if (booking.getStatus() ==
+                Booking.BookingStatus.REJECTED ||
+            booking.getStatus() ==
+                Booking.BookingStatus.CANCELLED) {
+            throw new RuntimeException(
+                "Cannot cancel this booking");
+        }
+
+        booking.setStatus(Booking.BookingStatus.CANCELLED);
+        return bookingRepository.save(booking);
     }
 
+    // ── User stats ───────────────────────────────
     public Map<String, Long> getUserStats(Long userId) {
+        List<Booking> bookings = 
+            bookingRepository.findByUserId(userId);
         return Map.of(
-                "total", bookingRepository.countByUserId(userId),
-                "pending", bookingRepository.countByUserIdAndStatus(userId, Booking.BookingStatus.PENDING),
-                "approved", bookingRepository.countByUserIdAndStatus(userId, Booking.BookingStatus.APPROVED)
+            "total", (long) bookings.size(),
+            "pending", bookings.stream()
+                .filter(b -> b.getStatus() ==
+                    Booking.BookingStatus.PENDING)
+                .count(),
+            "approved", bookings.stream()
+                .filter(b -> b.getStatus() ==
+                    Booking.BookingStatus.APPROVED)
+                .count(),
+            "rejected", bookings.stream()
+                .filter(b -> b.getStatus() ==
+                    Booking.BookingStatus.REJECTED)
+                .count(),
+            "cancelled", bookings.stream()
+                .filter(b -> b.getStatus() ==
+                    Booking.BookingStatus.CANCELLED)
+                .count()
         );
     }
 }
-

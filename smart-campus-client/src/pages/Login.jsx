@@ -42,19 +42,21 @@ const { isAuthenticated, isAdmin, login } = useAuth();
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        }
-      );
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    email,
+    password,
+  }),
+});
 
-      if (!response.ok) {
-        if (response.status === 401) {
+if (!res.ok) {
+        if (res.status === 401) {
           setError("Invalid email or password");
-        } else if (response.status === 403) {
+        } else if (res.status === 403) {
           setError("Your account has been disabled. Contact admin.");
         } else {
           setError("Something went wrong. Try again.");
@@ -62,6 +64,7 @@ const { isAuthenticated, isAdmin, login } = useAuth();
         return;
       }
 
+<<<<<<< HEAD
  
 const result = await response.json();
 const data = result.data;
@@ -80,6 +83,42 @@ if (data.role === "ADMIN") {
 catch (err) {
         console.error("Full error:", err);         // ← add this
   console.error("Error message:", err.message); // ← and this
+=======
+const data = await res.json();
+
+console.log("LOGIN DATA:", data);
+
+const token = data?.data?.token;
+const role = data?.data?.role || data?.role;
+
+if (!token) {
+  console.error("TOKEN NOT FOUND", data);
+  setError("Login failed. No token received");
+  return;
+}
+
+// ✅ store token
+localStorage.setItem("token", token);
+
+// (optional)
+localStorage.setItem("role", role);
+
+// FIX ROLE ACCESS
+if (!role) {
+  console.error("ROLE NOT FOUND", data);
+  return;
+}
+
+
+window.location.href =
+  role === "ADMIN"
+    ? "/admin/dashboard"
+    : role === "TECHNICIAN"
+      ? "/technician/dashboard"
+      : "/dashboard";
+      
+    } catch (err) {
+>>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
       setError("Cannot connect to server. Make sure backend is running.");
     } finally {
       setLoading(false);
@@ -172,7 +211,7 @@ catch (err) {
             </label>
             <input
               type="email"
-              placeholder="your@sliit.lk"
+              placeholder="ITXXXXXXXX@sliit.lk"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
