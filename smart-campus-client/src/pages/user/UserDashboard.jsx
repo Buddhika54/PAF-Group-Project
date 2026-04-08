@@ -36,21 +36,25 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [bStats, tStats, bList, tList] = await Promise.all([
+        console.log('USER DASHBOARD - Fetching data...');
+        const [bStats, bList] = await Promise.all([
           bookingAPI.getMyStats(),
-          ticketAPI.getMyStats(),
           bookingAPI.getMyBookings(),
-          ticketAPI.getMyTickets(),
         ]);
+        
+        console.log('USER DASHBOARD - Stats response:', bStats);
+        console.log('USER DASHBOARD - Bookings response:', bList);
+        
         setBookingStats(bStats.data || {});
-        setTicketStats(tStats.data || {});
         
         const bookingsData = Array.isArray(bList.data) ? bList.data : [];
-        const ticketsData = Array.isArray(tList.data) ? tList.data : [];
+        
+        console.log('USER DASHBOARD - Processed bookings data:', bookingsData);
         
         setRecentBookings(bookingsData.slice(0, 3));
-        setRecentTickets(ticketsData.slice(0, 3));
-      } catch {
+        setRecentTickets([]); // Set empty since ticket APIs don't exist yet
+      } catch (error) {
+        console.error('USER DASHBOARD - Error fetching data:', error);
         // Set empty arrays on error
         setRecentBookings([]);
         setRecentTickets([]);
@@ -80,7 +84,7 @@ export default function UserDashboard() {
 
         {/* Quick actions */}
         <div className="flex gap-4">
-          <Link to="/resources" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
+          <Link to="/resourceslist" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
             🏛️ Book a Resource
           </Link>
           <Link to="/tickets/new" className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
