@@ -1,11 +1,10 @@
-
 package com.smartcampus.smart_campus.service;
 
 import com.smartcampus.smart_campus.dto.LoginRequest;
 import com.smartcampus.smart_campus.dto.LoginResponse;
 import com.smartcampus.smart_campus.model.User;
 import com.smartcampus.smart_campus.repository.UserRepository;
-import com.smartcampus.smart_campus.util.JwtUtil;
+import com.smartcampus.smart_campus.security.jwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private jwtUtils jwtUtils;
 
     public LoginResponse login(LoginRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
@@ -36,7 +35,7 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtils.generateToken(user);
         return new LoginResponse(token, user.getRole().toString(), user.getId());
     }
 }

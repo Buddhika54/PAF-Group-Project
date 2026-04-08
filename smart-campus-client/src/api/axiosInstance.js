@@ -4,43 +4,32 @@ const api = axios.create({
   baseURL: 'http://localhost:8080/api',
 });
 
-// Only add token if it exists (don't require it)
+// Always attach token if it exists
 api.interceptors.request.use(
-    (config) => {
-        // Check if this is a public endpoint that doesn't need auth
-        const publicEndpoints = ['/resources', '/tickets']; // Add public endpoints here
-        
-        const isPublic = publicEndpoints.some(endpoint => config.url.includes(endpoint));
-        
-        if (!isPublic) {
-            const token = localStorage.getItem('token');
-            if(token){
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token && token !== 'undefined' && token !== 'null') {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
-// Don't redirect to login for public endpoints
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    // Only redirect to login if it's not a public endpoint and not a CORS error
-    const isPublicEndpoint = error.config?.url?.includes('/resources') || 
-                            error.config?.url?.includes('/tickets');
-    
-    if (error.response?.status === 401 && !isPublicEndpoint) {
-      localStorage.clear();
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-
 export const bookingAPI = {
+  getMyBookings: () => api.get('/bookings/my'),
+  getMyStats: () => api.get('/bookings/my/stats'),
   create: (data) => api.post('/bookings', data),
 };
 
@@ -67,9 +56,3 @@ export const resourceAPI = {
 };
 
 export default api;
-
-
-
-
-
-

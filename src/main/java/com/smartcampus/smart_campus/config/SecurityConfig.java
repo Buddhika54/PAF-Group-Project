@@ -46,90 +46,54 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http)
             throws Exception {
         http
-            // ── CORS ────────────────────────────────
             .cors(cors -> cors
                 .configurationSource(corsConfigurationSource()))
 
-            // ── CSRF disabled ────────────────────────
             .csrf(csrf -> csrf.disable())
 
-            // ── Stateless session ────────────────────
             .sessionManagement(session -> session
-                .sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS))
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // ── URL rules ────────────────────────────
             .authorizeHttpRequests(auth -> auth
 
-                // Public auth endpoints
+                // Public endpoints — no auth needed
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/public/**",
                     "/oauth2/**",
                     "/login/**",
-                    "/error",
-                    "/admin/**",
-                "/api/resources/**"
+                    "/error"
                 ).permitAll()
 
-                // Module A — anyone can READ resources
+                // Anyone can READ resources
                 .requestMatchers(
                     HttpMethod.GET,
                     "/api/resources",
                     "/api/resources/**"
                 ).permitAll()
 
-                // Module B — anyone can READ bookings
-                .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/bookings",
-                    "/api/bookings/**"
-                ).permitAll()
-
-                // Module C — anyone can READ tickets
-                .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/tickets",
-                    "/api/tickets/**"
-                ).permitAll()
-
-                // Module D — anyone can READ notifications
-                .requestMatchers(
-                    HttpMethod.GET,
-                    "/api/notifications",
-                    "/api/notifications/**"
-                ).permitAll()
-
-                // Everything else needs JWT
+                // Everything else requires JWT
                 .anyRequest().authenticated()
             )
 
-            // ── Return 401 instead of redirect ───────
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(
                     (request, response, authException) -> {
-                        response.setStatus(
-                            HttpServletResponse.SC_UNAUTHORIZED
-                        );
-                        response.setContentType(
-                            "application/json"
-                        );
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json");
                         response.getWriter().write(
-                            "{\"error\": \"Unauthorized." +
-                            " Please login first.\"}"
+                            "{\"error\": \"Unauthorized. Please login first.\"}"
                         );
                     }
                 )
             )
 
-            // ── OAuth2 login ─────────────────────────
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(info -> info
                     .userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
             )
 
-            // ── JWT filter ───────────────────────────
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
@@ -143,9 +107,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             "http://localhost:3000",
-             "http://localhost:5173",
+            "http://localhost:5173",
             "http://localhost:5174"
-
         ));
         config.setAllowedMethods(List.of(
             "GET", "POST", "PUT",

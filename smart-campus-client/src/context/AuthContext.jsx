@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-<<<<<<< HEAD
   const login = (newToken) => {
     const payload = parseToken(newToken);
     if (!payload) {
@@ -54,21 +53,6 @@ export const AuthProvider = ({ children }) => {
       role: payload.role || 'USER',
     });
   };
-=======
-  const login = (token) => {
-  localStorage.setItem('token', token);
-  const decoded = jwtDecode(token);
-
-  setToken(token);
-  setUser({
-    id: decoded.id,
-    name: decoded.name,
-    email: decoded.sub,
-    picture: decoded.picture,
-    role: decoded.role || "USER",
-  });
-};
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
 
   const logout = () => {
     localStorage.removeItem('token');

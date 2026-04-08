@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-<<<<<<< HEAD
 import { useAuth } from "../../context/AuthContext";
 import { bookingAPI, ticketAPI } from "../../api/axiosInstance";
 import Navbar from "../../components/layout/Navbar";
-=======
-import { useAuth } from '../../context/AuthContext';
-import { bookingAPI, ticketAPI } from '../../api/axiosInstance';
-import Navbar from '../../components/layout/Navbar';
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
 
 const StatCard = ({ label, value, color, icon }) => (
   <div className={`${color} rounded-2xl p-5 flex items-center gap-4 shadow-sm`}>
@@ -21,23 +15,38 @@ const StatCard = ({ label, value, color, icon }) => (
 );
 
 const statusBadge = (s) => {
-  const m = { APPROVED: 'bg-green-100 text-green-700', PENDING: 'bg-yellow-100 text-yellow-700',
-               REJECTED: 'bg-red-100 text-red-700', CANCELLED: 'bg-gray-100 text-gray-600' };
+  const m = {
+    APPROVED: 'bg-green-100 text-green-700',
+    PENDING: 'bg-yellow-100 text-yellow-700',
+    REJECTED: 'bg-red-100 text-red-700',
+    CANCELLED: 'bg-gray-100 text-gray-600'
+  };
   return <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${m[s] || 'bg-gray-100'}`}>{s}</span>;
 };
 
 const priorityBadge = (p) => {
-  const m = { CRITICAL: 'bg-red-100 text-red-700', HIGH: 'bg-orange-100 text-orange-700',
-               MEDIUM: 'bg-yellow-100 text-yellow-700', LOW: 'bg-green-100 text-green-700' };
+  const m = {
+    CRITICAL: 'bg-red-100 text-red-700',
+    HIGH: 'bg-orange-100 text-orange-700',
+    MEDIUM: 'bg-yellow-100 text-yellow-700',
+    LOW: 'bg-green-100 text-green-700'
+  };
   return <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${m[p] || 'bg-gray-100'}`}>{p}</span>;
 };
 
+const ticketStatusBadge = (s) => {
+  const m = {
+    OPEN: 'bg-blue-100 text-blue-700',
+    IN_PROGRESS: 'bg-purple-100 text-purple-700',
+    RESOLVED: 'bg-green-100 text-green-700',
+    CLOSED: 'bg-gray-100 text-gray-600',
+    REJECTED: 'bg-red-100 text-red-700'
+  };
+  return <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${m[s] || 'bg-gray-100'}`}>{s?.replace(/_/g, ' ')}</span>;
+};
+
 export default function UserDashboard() {
-<<<<<<< HEAD
-  const user = { name: 'Test User', role: 'USER' };
-=======
   const { user } = useAuth();
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
   const [bookingStats, setBookingStats] = useState({});
   const [ticketStats, setTicketStats] = useState({});
   const [recentBookings, setRecentBookings] = useState([]);
@@ -45,27 +54,32 @@ export default function UserDashboard() {
 
   useEffect(() => {
     const fetchAll = async () => {
+      // Tickets
       try {
-        const [bStats, tStats, bList, tList] = await Promise.all([
-          bookingAPI.getMyStats(),
+        const [tStats, tList] = await Promise.all([
           ticketAPI.getMyStats(),
-          bookingAPI.getMyBookings(),
           ticketAPI.getMyTickets(),
         ]);
-        setBookingStats(bStats.data || {});
         setTicketStats(tStats.data || {});
-        
-        const bookingsData = Array.isArray(bList.data) ? bList.data : [];
         const ticketsData = Array.isArray(tList.data) ? tList.data : [];
-        
-        setRecentBookings(bookingsData.slice(0, 3));
         setRecentTickets(ticketsData.slice(0, 3));
       } catch {
-        // Set empty arrays on error
-        setRecentBookings([]);
-        setRecentTickets([]);
-        setBookingStats({});
         setTicketStats({});
+        setRecentTickets([]);
+      }
+
+      // Bookings — separate try/catch
+      try {
+        const [bStats, bList] = await Promise.all([
+          bookingAPI.getMyStats(),
+          bookingAPI.getMyBookings(),
+        ]);
+        setBookingStats(bStats.data || {});
+        const bookingsData = Array.isArray(bList.data) ? bList.data : [];
+        setRecentBookings(bookingsData.slice(0, 3));
+      } catch {
+        setBookingStats({});
+        setRecentBookings([]);
       }
     };
     fetchAll();
@@ -73,10 +87,12 @@ export default function UserDashboard() {
 
   return (
     <Navbar>
-      <div className="space-y-8 animate-[fadeIn_0.4s_ease]">
+      <div className="space-y-8">
         {/* Welcome */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Welcome back, {user?.name?.split(' ')[0]}! 👋
+          </h1>
           <p className="text-gray-500 mt-1">Here's what's happening with your bookings and tickets.</p>
         </div>
 
@@ -85,7 +101,7 @@ export default function UserDashboard() {
           <StatCard label="My Bookings" value={bookingStats.total} color="bg-blue-50 text-blue-700" icon="📅" />
           <StatCard label="Pending" value={bookingStats.pending} color="bg-yellow-50 text-yellow-700" icon="⏳" />
           <StatCard label="Open Tickets" value={ticketStats.open} color="bg-red-50 text-red-700" icon="🎫" />
-          <StatCard label="Resolved Tickets" value={ticketStats.resolved} color="bg-green-50 text-green-700" icon="✅" />
+          <StatCard label="Resolved" value={ticketStats.resolved} color="bg-green-50 text-green-700" icon="✅" />
         </div>
 
         {/* Quick actions */}
@@ -98,7 +114,7 @@ export default function UserDashboard() {
           </Link>
         </div>
 
-        {/* Recent bookings */}
+        {/* Recent Bookings */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-800">Recent Bookings</h2>
@@ -129,12 +145,8 @@ export default function UserDashboard() {
           </table>
         </div>
 
-        {/* Recent tickets */}
-<<<<<<< HEAD
+        {/* Recent Tickets */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-=======
-        {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-800">Recent Tickets</h2>
             <Link to="/tickets" className="text-sm text-blue-600 hover:underline">View all</Link>
@@ -153,7 +165,7 @@ export default function UserDashboard() {
                 <tr key={t.id} className="hover:bg-gray-50/50">
                   <td className="px-6 py-3 font-medium text-gray-900">{t.title}</td>
                   <td className="px-6 py-3">{priorityBadge(t.priority)}</td>
-                  <td className="px-6 py-3">{statusBadge(t.status)}</td>
+                  <td className="px-6 py-3">{ticketStatusBadge(t.status)}</td>
                   <td className="px-6 py-3 text-gray-600">{t.createdAt?.split('T')[0]}</td>
                 </tr>
               ))}
@@ -162,11 +174,7 @@ export default function UserDashboard() {
               )}
             </tbody>
           </table>
-<<<<<<< HEAD
         </div>
-=======
-        </div>*/}
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
       </div>
     </Navbar>
   );

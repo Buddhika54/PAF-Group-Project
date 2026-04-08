@@ -64,49 +64,24 @@ if (!res.ok) {
         return;
       }
 
-<<<<<<< HEAD
- 
-const result = await response.json();
-const data = result.data;
 
-login(data.token); // ← just token, AuthContext parses the rest from JWT
-
-if (data.role === "ADMIN") {
-  navigate("/admin/dashboard");
-} else if (data.role === "TECHNICIAN") {
-  navigate("/technician/dashboard");
-} else {
-  navigate("/dashboard");
-}
-}
-
-catch (err) {
-        console.error("Full error:", err);         // ← add this
-  console.error("Error message:", err.message); // ← and this
-=======
 const data = await res.json();
-
-console.log("LOGIN DATA:", data);
-
 const token = data?.data?.token;
-const role = data?.data?.role || data?.role;
+const role = data?.data?.role;
 
 if (!token) {
-  console.error("TOKEN NOT FOUND", data);
   setError("Login failed. No token received");
   return;
 }
 
-// ✅ store token
-localStorage.setItem("token", token);
+login(token); // ← update AuthContext state
 
-// (optional)
-localStorage.setItem("role", role);
-
-// FIX ROLE ACCESS
-if (!role) {
-  console.error("ROLE NOT FOUND", data);
-  return;
+if (role === "ADMIN") {
+  navigate("/admin/dashboard");
+} else if (role === "TECHNICIAN") {
+  navigate("/technician/dashboard");
+} else {
+  navigate("/dashboard");
 }
 
 
@@ -118,7 +93,7 @@ window.location.href =
       : "/dashboard";
       
     } catch (err) {
->>>>>>> baa448a036f09821e3b60f7128394aabd04c1726
+
       setError("Cannot connect to server. Make sure backend is running.");
     } finally {
       setLoading(false);

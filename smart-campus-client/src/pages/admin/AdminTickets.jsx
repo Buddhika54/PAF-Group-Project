@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Navbar from "../../components/layout/Navbar";
+import { ticketAPI } from '../../api/axiosInstance';
 
 const priorityClr = { 
   CRITICAL:'bg-red-100 text-red-700', 
@@ -30,21 +31,14 @@ export default function AdminTickets() {
   const [newStatus, setNewStatus] = useState('');
   const [resolution, setResolution] = useState('');
 
-  const loadTickets = () => {
+  const loadTickets = async () => {
     setLoading(true);
     try {
-      // Load tickets from localStorage
-      const storedTickets = localStorage.getItem('submittedTickets');
-      if (storedTickets) {
-        const parsedTickets = JSON.parse(storedTickets);
-        setTickets(Array.isArray(parsedTickets) ? parsedTickets : []);
-        console.log('Loaded tickets from localStorage:', parsedTickets.length);
-      } else {
-        setTickets([]);
-        console.log('No tickets found in localStorage');
-      }
+      const response = await ticketAPI.getAll();
+      setTickets(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error loading tickets:', error);
+      toast.error('Failed to load tickets');
       setTickets([]);
     } finally {
       setLoading(false);
@@ -55,40 +49,30 @@ export default function AdminTickets() {
     loadTickets(); 
   }, []);
 
-  const updateStatus = () => {
+  const updateStatus = async () => {
     try {
-      // Get current tickets
-      const currentTickets = [...tickets];
-      const ticketIndex = currentTickets.findIndex(t => t.id === statusModal.id);
-      
-      if (ticketIndex !== -1) {
-        // Update the ticket
-        currentTickets[ticketIndex].status = newStatus;
-        if (resolution) {
-          currentTickets[ticketIndex].resolutionNotes = resolution;
-        }
-        currentTickets[ticketIndex].updatedAt = new Date().toISOString();
-        
-        // Save back to localStorage
-        localStorage.setItem('submittedTickets', JSON.stringify(currentTickets));
-        setTickets(currentTickets);
-        
-        toast.success('Status updated successfully!');
-        setStatusModal(null);
-        setResolution('');
-      }
+      await ticketAPI.updateStatus(statusModal.id, {
+        status: newStatus,
+        resolutionNotes: resolution || null,
+      });
+      toast.success('Status updated successfully!');
+      setStatusModal(null);
+      setResolution('');
+      loadTickets();
     } catch (error) {
       console.error('Error updating status:', error);
       toast.error('Failed to update status');
     }
   };
 
-  const deleteTicket = (id) => {
+  const deleteTicket = async (id) => {
     if (window.confirm('Are you sure you want to delete this ticket?')) {
-      const updatedTickets = tickets.filter(t => t.id !== id);
-      localStorage.setItem('submittedTickets', JSON.stringify(updatedTickets));
-      setTickets(updatedTickets);
-      toast.success('Ticket deleted successfully');
+      try {
+        // No delete API yet — just reload
+        toast.error('Delete not supported via API yet');
+      } catch (error) {
+        toast.error('Failed to delete ticket');
+      }
     }
   };
 
@@ -201,7 +185,7 @@ export default function AdminTickets() {
                 {!loading && filtered.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-12 text-center text-gray-400">
-                      No tickets found. Click "Report Issue" to create your first ticket.
+                      No tickets found.
                     </td>
                   </tr>
                 )}
@@ -211,7 +195,6 @@ export default function AdminTickets() {
         </div>
       </div>
 
-      {/* Status Update Modal */}
       {statusModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
