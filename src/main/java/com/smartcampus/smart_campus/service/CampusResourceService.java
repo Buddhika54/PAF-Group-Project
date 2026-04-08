@@ -67,24 +67,50 @@ public class CampusResourceService {
         repo.deleteById(id);
     }
 
-    // STATUS UPDATE
-    public void updateStatus(Long id, String status, String maintenanceNote) {
-        CampusResource r = getById(id);
-        r.setStatus(CampusResource.ResourceStatus.valueOf(status));
-        if (maintenanceNote != null) {
-            r.setMaintenanceNote(maintenanceNote);
-        }
-        repo.save(r);
+    // STATUS UPDATE - Supports maintenance note
+        public void updateStatus(Long id, String status, String maintenanceNote) {
+    CampusResource r = getById(id);
+
+    System.out.println("STATUS RECEIVED: " + status);
+    
+    try {
+    r.setStatus(CampusResource.ResourceStatus.valueOf(status.toUpperCase()));
+} catch (IllegalArgumentException e) {
+    throw new RuntimeException("Invalid status: " + status);
+}
+    
+    if (maintenanceNote != null && !maintenanceNote.trim().isEmpty()) {
+        r.setMaintenanceNote(maintenanceNote);
     }
+    
+    repo.save(r);
+}
 
     // STATS (Counts)
     public Map<String, Long> getStats() {
-        Map<String, Long> map = new HashMap<>();
-        map.put("total", repo.count());
-        map.put("active", repo.findAll().stream().filter(r -> r.getStatus().name().equals("ACTIVE")).count());
-        map.put("outOfService", repo.findAll().stream().filter(r -> r.getStatus().name().equals("OUT_OF_SERVICE")).count());
-        return map;
-    }
+    Map<String, Long> map = new HashMap<>();
+
+    List<CampusResource> all = repo.findAll();
+
+    map.put("total", (long) all.size());
+
+    map.put("active", all.stream()
+            .filter(r -> r.getStatus() != null && r.getStatus().name().equals("ACTIVE"))
+            .count());
+
+    map.put("outOfService", all.stream()
+            .filter(r -> r.getStatus() != null && r.getStatus().name().equals("OUT_OF_SERVICE"))
+            .count());
+
+    map.put("underMaintenance", all.stream()
+            .filter(r -> r.getStatus() != null && r.getStatus().name().equals("UNDER_MAINTENANCE"))
+            .count());
+
+    
+    map.put("pendingBookings", 0L);
+
+    return map;
+}
 
     // IMAGE UPLOAD
     private String saveImage(MultipartFile file) throws Exception {
