@@ -158,4 +158,9 @@ public class TicketService {
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+
+    public void deleteById(Long id) {
+    ticketRepository.deleteById(id);
+}
 }

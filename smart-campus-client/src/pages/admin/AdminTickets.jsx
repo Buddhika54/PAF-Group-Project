@@ -65,16 +65,18 @@ export default function AdminTickets() {
     }
   };
 
-  const deleteTicket = async (id) => {
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
-      try {
-        // No delete API yet — just reload
-        toast.error('Delete not supported via API yet');
-      } catch (error) {
-        toast.error('Failed to delete ticket');
-      }
+ const deleteTicket = async (id) => {
+  if (window.confirm('Are you sure you want to delete this ticket?')) {
+    try {
+      await ticketAPI.delete(id);
+      toast.success('Ticket deleted successfully');
+      loadTickets(); // ← refresh the list
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      toast.error('Failed to delete ticket');
     }
-  };
+  }
+};
 
   const filtered = tickets
     .filter(t => !statusFilter || t.status === statusFilter)

@@ -239,6 +239,14 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
+    // 🔒 ADMIN ONLY — Delete ticket
+@PreAuthorize("hasRole('ADMIN')")
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
+    ticketService.deleteById(id);
+    return ResponseEntity.noContent().build();
+}
+
     // 🔒 AUTHENTICATED — Upload attachment
     @PostMapping("/{id}/attachments")
     public ResponseEntity<TicketAttachment> uploadAttachment(@PathVariable Long id,

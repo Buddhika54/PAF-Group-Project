@@ -49,6 +49,10 @@ export const ticketAPI = {
     return api.post(`/tickets/${id}/attachments`, form);
   },
   getAll: () => api.get('/tickets'),
+
+  // ... existing methods ...
+  delete: (id) => api.delete(`/tickets/${id}`),  // ← ADD THIS
+
 };
 
 export const resourceAPI = {
