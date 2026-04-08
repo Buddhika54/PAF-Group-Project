@@ -4,10 +4,12 @@ import {bookingAPI } from '../../api/axiosInstance';
 import {resourceAPI} from '../../services/resourceAPI';
 import { toast } from 'react-hot-toast';
 import Navbar from '../../components/layout/Navbar';
+import { useAuth } from '../../context/AuthContext';
 
 export default function NewBooking() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [resources, setResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(location.state?.resource || null);
   const [form, setForm] = useState({ bookingDate: '', startTime: '', endTime: '', purpose: '', expectedAttendees: '' });
@@ -23,10 +25,18 @@ export default function NewBooking() {
     e.preventDefault();
     if (!selectedResource) return toast.error('Please select a resource');
     if (form.startTime >= form.endTime) return toast.error('End time must be after start time');
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error('You must be logged in to make a booking');
+      navigate('/login');
+      return;
+    }
+    
     setSubmitting(true);
     try {
       const response = await bookingAPI.create({
-        resourceId: selectedResource.id,
+        resourceId: parseInt(selectedResource.id),
         ...form,
         expectedAttendees: parseInt(form.expectedAttendees) || null,
       });

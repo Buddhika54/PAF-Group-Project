@@ -18,6 +18,7 @@ import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
 import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
+import AdminBookings from './pages/admin/AdminBookings';
 
 function App() {
   return (
@@ -90,7 +91,7 @@ function App() {
 
           {/* ── Admin Routes ───────────────────────────── */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/bookings" element={<div>Admin Bookings</div>} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
           
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
