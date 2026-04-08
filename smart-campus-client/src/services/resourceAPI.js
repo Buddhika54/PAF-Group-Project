@@ -14,6 +14,6 @@ export const resourceAPI = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
   delete: (id) => axios.delete(`${API}/${id}`),
-  updateStatus: (id, status) => axios.patch(`${API}/${id}/status`, { status }),
+  updateStatus: (id, payload) => axios.patch(`${API}/${id}/status`, payload),
   getStats: () => axios.get(`${API}/stats`),
 };

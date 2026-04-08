@@ -235,7 +235,7 @@ export default function Login() {
         </div>
 
         {/* RIGHT SIDE — Form */}
-        <div className="w-full md:w-1/2 flex items-center justify-center bg-white px-8 py-12">
+        <div className="w-full md:w-1/2 flex items-center justify-center bg-white px-8 py-12 mt-8">
           <div className="w-full max-w-sm">
             {/* Top right logo */}
             <div className="flex justify-end mb-10">

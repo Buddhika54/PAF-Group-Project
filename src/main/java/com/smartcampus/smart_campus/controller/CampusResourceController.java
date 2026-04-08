@@ -126,7 +126,9 @@ public class CampusResourceController {
     // STATUS CHANGE
     @PatchMapping("/{id}/status")
     public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        service.updateStatus(id, body.get("status"));
+        String status = body.get("status");
+        String maintenanceNote = body.get("maintenanceNote");
+        service.updateStatus(id, status, maintenanceNote);
         return ResponseEntity.ok().build();
     }
     

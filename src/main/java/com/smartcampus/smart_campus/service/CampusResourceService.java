@@ -68,9 +68,12 @@ public class CampusResourceService {
     }
 
     // STATUS UPDATE
-    public void updateStatus(Long id, String status) {
+    public void updateStatus(Long id, String status, String maintenanceNote) {
         CampusResource r = getById(id);
         r.setStatus(CampusResource.ResourceStatus.valueOf(status));
+        if (maintenanceNote != null) {
+            r.setMaintenanceNote(maintenanceNote);
+        }
         repo.save(r);
     }
 
