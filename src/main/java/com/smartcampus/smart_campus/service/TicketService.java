@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -146,4 +147,9 @@ public class TicketService {
                 "resolved", ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.RESOLVED)
         );
     }
+
+    // ✅ Needed for OAuth2 user lookup
+public Optional<User> findUserByEmail(String email) {
+    return userRepository.findByEmail(email);
+}
 }

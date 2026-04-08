@@ -1,21 +1,41 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ticketAPI, resourceAPI } from '../../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { resourceAPI, ticketAPI } from "../../api/axiosInstance";
 import { toast } from 'react-hot-toast';
 import Navbar from "../../components/layout/Navbar";
+import { useAuth } from '../../context/AuthContext';
 
 const CATEGORIES = ['HARDWARE','SOFTWARE','ELECTRICAL','PLUMBING','HVAC','OTHER'];
 const PRIORITIES = ['LOW','MEDIUM','HIGH','CRITICAL'];
 
 export default function NewTicket() {
   const [resources, setResources] = useState([]);
-  const [form, setForm] = useState({ title:'', resourceId:'', category:'OTHER', priority:'MEDIUM', description:'', preferredContact:'' });
+  const [form, setForm] = useState({ 
+    title: '', 
+    resourceId: '', 
+    category: 'OTHER', 
+    priority: 'MEDIUM', 
+    description: '', 
+    preferredContact: '' 
+  });
   const [files, setFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, token } = useAuth();
 
+  // Check authentication on mount
   useEffect(() => {
-    resourceAPI.getAll({}).then(r => setResources(r.data));
-  }, []);
+    if (!isAuthenticated || !token) {
+      toast.error('Please login to submit a ticket');
+      navigate('/login');
+      return;
+    }
+    
+    // Load resources
+    resourceAPI.getAll()
+      .then(r => setResources(r.data))
+      .catch(err => console.error('Error loading resources:', err));
+  }, [isAuthenticated, token, navigate]);
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -30,7 +50,16 @@ export default function NewTicket() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Double-check authentication before submitting
+    if (!isAuthenticated || !token) {
+      toast.error('Please login to submit a ticket');
+      navigate('/login');
+      return;
+    }
+    
     setSubmitting(true);
+    
     try {
       const payload = {
         title: form.title,
@@ -40,18 +69,40 @@ export default function NewTicket() {
         preferredContact: form.preferredContact,
         resourceId: form.resourceId ? parseInt(form.resourceId) : null,
       };
-      const res = await ticketAPI.create(payload);
-      const ticketId = res.data.id;
-
-      for (const file of files) {
-        try { await ticketAPI.uploadAttachment(ticketId, file); }
-        catch { /* attachment fails silently */ }
+      
+      console.log('Submitting to backend:', payload);
+      const response = await ticketAPI.create(payload);
+      console.log('Ticket created:', response.data);
+      
+      // Upload attachments if any
+      if (files.length > 0 && response.data.id) {
+        for (const file of files) {
+          try {
+            await ticketAPI.uploadAttachment(response.data.id, file);
+            console.log('Attachment uploaded:', file.name);
+          } catch (err) {
+            console.error('Attachment upload failed:', err);
+          }
+        }
       }
-
+      
       toast.success('Ticket submitted successfully!');
-      window.location.href = '/tickets';
-    } catch { toast.error('Failed to submit ticket'); }
-    setSubmitting(false);
+      
+      setTimeout(() => {
+        navigate('/tickets');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Submission error:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        navigate('/login');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to submit ticket');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -65,9 +116,13 @@ export default function NewTicket() {
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
           <div>
             <label className="text-xs font-medium text-gray-600 mb-1 block">Title *</label>
-            <input required value={form.title} onChange={e => setForm(f => ({...f, title: e.target.value}))}
+            <input 
+              required 
+              value={form.title} 
+              onChange={e => setForm(f => ({...f, title: e.target.value}))}
               placeholder="Brief description of the issue..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" 
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -97,19 +152,26 @@ export default function NewTicket() {
 
           <div>
             <label className="text-xs font-medium text-gray-600 mb-1 block">Description *</label>
-            <textarea required rows={4} value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))}
+            <textarea 
+              required 
+              rows={4} 
+              value={form.description} 
+              onChange={e => setForm(f => ({...f, description: e.target.value}))}
               placeholder="Describe the issue in detail..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" />
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" 
+            />
           </div>
 
           <div>
             <label className="text-xs font-medium text-gray-600 mb-1 block">Preferred Contact</label>
-            <input value={form.preferredContact} onChange={e => setForm(f => ({...f, preferredContact: e.target.value}))}
+            <input 
+              value={form.preferredContact} 
+              onChange={e => setForm(f => ({...f, preferredContact: e.target.value}))}
               placeholder="Phone / Email / Ext..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" 
+            />
           </div>
 
-          {/* File upload area */}
           <div>
             <label className="text-xs font-medium text-gray-600 mb-2 block">
               Attachments <span className="text-gray-400 font-normal">({files.length}/3 images)</span>
@@ -118,23 +180,37 @@ export default function NewTicket() {
               <span className="text-2xl mb-2">📎</span>
               <span className="text-sm text-gray-500">Click or drag to upload images</span>
               <span className="text-xs text-gray-400 mt-1">JPG, PNG, JPEG • Max 3 files</span>
-              <input type="file" accept="image/jpeg,image/png,image/jpg" multiple onChange={handleFileChange} className="hidden" />
+              <input 
+                type="file" 
+                accept="image/jpeg,image/png,image/jpg" 
+                multiple 
+                onChange={handleFileChange} 
+                className="hidden" 
+              />
             </label>
             {files.length > 0 && (
               <div className="flex gap-3 mt-3 flex-wrap">
                 {files.map((f, i) => (
                   <div key={i} className="relative">
                     <img src={URL.createObjectURL(f)} alt={f.name} className="w-20 h-20 object-cover rounded-xl border border-gray-200" />
-                    <button type="button" onClick={() => removeFile(i)}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
+                    <button 
+                      type="button" 
+                      onClick={() => removeFile(i)}
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          <button type="submit" disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold transition-colors">
+          <button 
+            type="submit" 
+            disabled={submitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold transition-colors"
+          >
             {submitting ? 'Submitting...' : 'Submit Ticket'}
           </button>
         </form>

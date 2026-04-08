@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { bookingAPI, ticketAPI } from '../services/api';
-import Navbar from "../components/layout/Navbar";
+import { useAuth } from "../../context/AuthContext";
+import { bookingAPI, ticketAPI } from "../../api/axiosInstance";
+import Navbar from "../../components/layout/Navbar";
 
 const StatCard = ({ label, value, color, icon }) => (
   <div className={`${color} rounded-2xl p-5 flex items-center gap-4 shadow-sm`}>
@@ -27,7 +27,7 @@ const priorityBadge = (p) => {
 };
 
 export default function UserDashboard() {
-  const { user } = useAuth();
+  const user = { name: 'Test User', role: 'USER' };
   const [bookingStats, setBookingStats] = useState({});
   const [ticketStats, setTicketStats] = useState({});
   const [recentBookings, setRecentBookings] = useState([]);

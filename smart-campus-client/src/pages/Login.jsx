@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+// ✅ fix
+
 
 export default function Login() {
-  const { isAuthenticated, isAdmin } = useAuth();
+ // ✅ fix
+const { isAuthenticated, isAdmin, login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -59,18 +62,24 @@ export default function Login() {
         return;
       }
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+ 
+const result = await response.json();
+const data = result.data;
 
-      if (data.role === "ADMIN") {
-        navigate("/admin/dashboard");
-      } else if (data.role === "TECHNICIAN") {
-        navigate("/technician/dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+login(data.token); // ← just token, AuthContext parses the rest from JWT
 
-    } catch (err) {
+if (data.role === "ADMIN") {
+  navigate("/admin/dashboard");
+} else if (data.role === "TECHNICIAN") {
+  navigate("/technician/dashboard");
+} else {
+  navigate("/dashboard");
+}
+}
+
+catch (err) {
+        console.error("Full error:", err);         // ← add this
+  console.error("Error message:", err.message); // ← and this
       setError("Cannot connect to server. Make sure backend is running.");
     } finally {
       setLoading(false);

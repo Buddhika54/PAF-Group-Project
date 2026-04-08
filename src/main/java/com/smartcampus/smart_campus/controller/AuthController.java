@@ -1,47 +1,32 @@
 package com.smartcampus.smart_campus.controller;
 
 import com.smartcampus.smart_campus.dto.*;
-import com.smartcampus.smart_campus.model.User;
-import com.smartcampus.smart_campus.repository.UserRepository;
+import com.smartcampus.smart_campus.service.AuthService;
 import com.smartcampus.smart_campus.service.UserService;
-
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 import java.util.stream.Collectors;
 
-/**
- * Auth endpoints used by the frontend after OAuth2 / JWT login.
- */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
-
 public class AuthController {
 
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AuthService authService; // ← ADD THIS
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody RegisterRequest request,
             BindingResult bindingResult) {
-        
+
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors()
                     .stream()
@@ -65,7 +50,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @RequestBody LoginRequest request) {
         try {
-            LoginResponse response = userService.login(request);
+            LoginResponse response = authService.login(request); // ← CHANGED
             return ResponseEntity.ok(ApiResponse.success("Login successful", response));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(401)
