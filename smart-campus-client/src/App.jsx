@@ -16,9 +16,11 @@ import Register from './pages/Register';
 import UserDashboard from './pages/user/UserDashboard';
 import MyBookings from './pages/user/MyBooking';
 import NewBooking from './pages/user/NewBooking';
+import ResourceList from './pages/resource/ResourceList';
 import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
 import AdminBookings from './pages/admin/AdminBookings';
+import MaintenanceTasks from './pages/Technician/MaintenanceTask';
 
 function App() {
   return (
@@ -75,6 +77,7 @@ function App() {
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/bookings/new" element={<NewBooking />} />
+          <Route path="/resourceslist" element={<ResourceList />} />
 
           {/* Admin Routes wrapped in Navbar */}
           {/* <Route
@@ -107,7 +110,8 @@ function App() {
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
 
           {/* ── Technician Dashboard ───────────────────── */}
-          <Route path="/technician/dashboard" element={<TechnicianResources />} />
+          <Route path="/technician/resources" element={<TechnicianResources />} />
+          <Route path="/technician/maintenance-tasks" element={<MaintenanceTasks />} />
 
           {/* ── Member 1 — Resources ───────────────────── */}
           <Route path="/resources" element={<div>Resource List</div>} />

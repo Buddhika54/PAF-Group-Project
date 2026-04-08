@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-//import { notificationAPI } from '../../api/axiosInstance';
 
 const NAV_USER = [
     { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
-    { label: 'Browse Resources', path: '/resources', icon: '🏛️' },
+    { label: 'Browse Resources', path: '/resourceslist', icon: '🏛️' },
     { label: 'My Bookings', path: '/my-bookings', icon: '📅' },
     { label: 'My Tickets', path: '/tickets', icon: '🎫' },
     { label: 'Notifications', path: '/notifications', icon: '🔔' },
@@ -19,20 +18,41 @@ const NAV_ADMIN = [
     { label: 'Notifications', path: '/notifications', icon: '🔔' },
 ];
 
+const NAV_TECHNICIAN = [
+    { label: 'Dashboard', path: '/technician/dashboard', icon: '🏠' },
+    { label: 'Assigned Tickets', path: '/technician/tickets', icon: '🎫' },
+    { label: 'Maintenance Tasks', path: '/technician/maintenance-tasks', icon: '🔧' },
+    { label: 'Resource Status', path: '/technician/resources', icon: '🏛️' },
+    { label: 'Notifications', path: '/notifications', icon: '🔔' },
+];
+
 export default function Navbar({ children }) {
-    const { user, logout, isAdmin } = useAuth();
+    const { user, logout, isAdmin, isTechnician, isStudent } = useAuth();
     const location = useLocation();
     const [unread, setUnread] = useState(0);
     const [showNotifPanel, setShowNotifPanel] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const navLinks = isAdmin ? NAV_ADMIN : NAV_USER;
+    // Determine which nav links to show based on role
+    let navLinks = NAV_USER;
+    let roleTitle = "Student Dashboard";
+    
+    if (isAdmin) {
+        navLinks = NAV_ADMIN;
+        roleTitle = "Admin Dashboard";
+    } else if (isTechnician) {
+        navLinks = NAV_TECHNICIAN;
+        roleTitle = "Technician Dashboard";
+    } else if (isStudent) {
+        roleTitle = "Student Dashboard";
+    }
 
     useEffect(() => {
         const fetchUnread = async () => {
             try {
-                const res = await notificationAPI.getUnreadCount();
-                setUnread(res.data.count);
+                // Uncomment when notificationAPI is ready
+                // const res = await notificationAPI.getUnreadCount();
+                // setUnread(res.data.count);
             } catch { }
         };
         fetchUnread();
@@ -40,7 +60,14 @@ export default function Navbar({ children }) {
         return () => clearInterval(interval);
     }, []);
 
-    const initials = user?.name?.charAt(0)?.toUpperCase() || 'U';
+    const initials = user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U';
+
+    // Get role display name
+    const getRoleDisplay = () => {
+        if (isAdmin) return 'Administrator';
+        if (isTechnician) return 'Technician';
+        return 'Student';
+    };
 
     return (
         <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -48,11 +75,10 @@ export default function Navbar({ children }) {
             <aside className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 bg-teal-800 flex flex-col flex-shrink-0`}>
                 {/* Logo */}
                 <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-700">
-                    {/* changed gradient */}
                     <div className="w-9 h-9 bg-gradient-to-br from-slate-900 to-slate-600 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-sm font-bold">SLIIT</span>
                     </div>
-                    {sidebarOpen && <span className="text-white font-bold text-lg whitespace-nowrap">Dashboard</span>}
+                    {sidebarOpen && <span className="text-white font-bold text-lg whitespace-nowrap">Smart Campus</span>}
                 </div>
 
                 {/* Nav links */}
@@ -72,6 +98,13 @@ export default function Navbar({ children }) {
 
                 {/* User info */}
                 <div className="p-3 border-t border-slate-700">
+                    {sidebarOpen && (
+                        <div className="mb-3 px-3 py-2 bg-slate-700/50 rounded-lg">
+                            <p className="text-xs text-slate-300">Logged in as</p>
+                            <p className="text-sm font-semibold text-white truncate">{user?.name || user?.email}</p>
+                            <p className="text-xs text-teal-300 mt-0.5">{getRoleDisplay()}</p>
+                        </div>
+                    )}
                     <button onClick={logout}
                         className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-slate-400 hover:bg-red-900/40 hover:text-red-400 transition-colors">
                         <span className="text-lg">🚪</span>
@@ -106,7 +139,14 @@ export default function Navbar({ children }) {
                                 )}
                             </button>
                             {showNotifPanel && (
-                                <NotificationPanel onClose={() => setShowNotifPanel(false)} onMarkRead={() => setUnread(0)} />
+                                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                                    <div className="p-3 border-b border-gray-200">
+                                        <h3 className="text-sm font-semibold text-gray-800">Notifications</h3>
+                                    </div>
+                                    <div className="p-3 text-center text-gray-500 text-sm">
+                                        No new notifications
+                                    </div>
+                                </div>
                             )}
                         </div>
 
@@ -120,10 +160,8 @@ export default function Navbar({ children }) {
                                 </div>
                             )}
                             <div className="hidden md:block">
-                                <p className="text-sm font-medium text-gray-700 leading-none">{user?.name}</p>
-
-                                {/* changed role color */}
-                                <p className="text-xs text-teal-600 font-medium mt-0.5">{user?.role}</p>
+                                <p className="text-sm font-medium text-gray-700 leading-none">{user?.name || user?.email}</p>
+                                <p className="text-xs text-teal-600 font-medium mt-0.5">{getRoleDisplay()}</p>
                             </div>
                         </div>
                     </div>

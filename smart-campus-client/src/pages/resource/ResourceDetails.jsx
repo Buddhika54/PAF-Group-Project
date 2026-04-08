@@ -11,15 +11,15 @@ const typeLabel = {
 };
 
 const typeStyles = {
-  LECTURE_HALL: 'bg-indigo-500/10 text-indigo-300',
-  LAB: 'bg-teal-500/10 text-teal-300',
-  MEETING_ROOM: 'bg-purple-500/10 text-purple-300',
-  EQUIPMENT: 'bg-amber-500/10 text-amber-300'
+  LECTURE_HALL: 'bg-teal-500/10 text-teal-400',
+  LAB: 'bg-teal-500/10 text-teal-400',
+  MEETING_ROOM: 'bg-teal-500/10 text-teal-400',
+  EQUIPMENT: 'bg-teal-500/10 text-teal-400'
 };
 
 const StatusBadge = ({ status }) => {
   const map = {
-    ACTIVE: { dot: 'bg-green-400 shadow-[0_0_6px_#4ade8088]', text: 'text-green-400', label: 'Active' },
+    ACTIVE: { dot: 'bg-teal-400 shadow-[0_0_6px_#2dd4bf88]', text: 'text-teal-400', label: 'Active' },
     UNDER_MAINTENANCE: { dot: 'bg-amber-400 shadow-[0_0_6px_#fbbf2488]', text: 'text-amber-400', label: 'Under Maintenance' },
     OUT_OF_SERVICE: { dot: 'bg-slate-500', text: 'text-slate-500', label: 'Out of Service' },
   };
@@ -56,15 +56,15 @@ export default function ResourceDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0d0f14] p-6 flex items-center justify-center">
-        <div className="text-slate-500">Loading resource details...</div>
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-gray-400">Loading resource details...</div>
       </div>
     );
   }
 
   if (!r) {
     return (
-      <div className="min-h-screen bg-[#0d0f14] p-6 text-center text-slate-500">
+      <div className="min-h-screen bg-gray-50 p-6 text-center text-gray-400">
         Resource not found
       </div>
     );
@@ -73,32 +73,32 @@ export default function ResourceDetails() {
   const isEquipment = r.type === 'EQUIPMENT';
 
   return (
-    <div className="min-h-screen bg-[#0d0f14] p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-3xl font-semibold text-[#f0f4ff]">{r.name}</h1>
-            <p className="text-slate-500 mt-1">Resource Details</p>
+            <h1 className="text-3xl font-semibold text-gray-800">{r.name}</h1>
+            <p className="text-gray-500 mt-1">Resource Details</p>
           </div>
           <Link
             to="/admin/resources"
-            className="text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+            className="text-gray-500 hover:text-teal-600 transition-colors flex items-center gap-2"
           >
             ← Back to Resources
           </Link>
         </div>
 
-        <div className="bg-[#161b27] border border-[#1e2535] rounded-3xl overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
           {/* Image Section - Only for Equipment */}
           {isEquipment && r.imageUrl && (
-            <div className="relative h-80 bg-black">
+            <div className="relative h-80 bg-gray-100">
               <img 
                 src={r.imageUrl} 
                 alt={r.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             </div>
           )}
 
@@ -112,7 +112,7 @@ export default function ResourceDetails() {
 
             {/* Status */}
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">CURRENT STATUS</p>
+              <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">CURRENT STATUS</p>
               <StatusBadge status={r.status} />
             </div>
 
@@ -120,37 +120,37 @@ export default function ResourceDetails() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
               {/* Common Fields */}
               <div>
-                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Resource Name</p>
-                <p className="text-[#f0f4ff] text-lg font-medium">{r.name}</p>
+                <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Resource Name</p>
+                <p className="text-gray-800 text-lg font-medium">{r.name}</p>
               </div>
 
               <div>
-                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Resource Type</p>
-                <p className="text-[#f0f4ff] text-lg font-medium">{typeLabel[r.type]}</p>
+                <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Resource Type</p>
+                <p className="text-gray-800 text-lg font-medium">{typeLabel[r.type]}</p>
               </div>
 
               {/* Conditional Fields */}
               {!isEquipment ? (
                 <>
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Capacity (Persons)</p>
-                    <p className="text-[#f0f4ff] text-lg font-medium">{r.capacity || '—'}</p>
+                    <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Capacity (Persons)</p>
+                    <p className="text-gray-800 text-lg font-medium">{r.capacity || '—'}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Building</p>
-                    <p className="text-[#f0f4ff] text-lg font-medium">{r.building || '—'}</p>
+                    <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Building</p>
+                    <p className="text-gray-800 text-lg font-medium">{r.building || '—'}</p>
                   </div>
 
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Location / Floor</p>
-                    <p className="text-[#f0f4ff] text-lg font-medium">{r.location || '—'}</p>
+                    <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Location / Floor</p>
+                    <p className="text-gray-800 text-lg font-medium">{r.location || '—'}</p>
                   </div>
                 </>
               ) : (
                 <div className="md:col-span-2">
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Special Notes / Specifications</p>
-                  <p className="text-[#f0f4ff] text-lg leading-relaxed whitespace-pre-wrap">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Special Notes / Specifications</p>
+                  <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
                     {r.specialNotes || 'No specifications provided'}
                   </p>
                 </div>
@@ -158,8 +158,8 @@ export default function ResourceDetails() {
 
               {/* Availability */}
               <div className={isEquipment ? "md:col-span-2" : ""}>
-                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Availability (Daily Time Range)</p>
-                <p className="text-[#f0f4ff] text-lg font-medium font-mono">
+                <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Availability (Daily Time Range)</p>
+                <p className="text-gray-800 text-lg font-medium font-mono">
                   {r.availabilityWindows || 'Not specified'}
                 </p>
               </div>
@@ -167,8 +167,8 @@ export default function ResourceDetails() {
               {/* Maintenance Note */}
               {r.maintenanceNote && (
                 <div className={isEquipment ? "md:col-span-2" : ""}>
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Maintenance Note</p>
-                  <p className="text-slate-300 leading-relaxed">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Maintenance Note</p>
+                  <p className="text-gray-600 leading-relaxed">
                     {r.maintenanceNote}
                   </p>
                 </div>
@@ -177,8 +177,8 @@ export default function ResourceDetails() {
               {/* Bookable - Only for non-equipment */}
               {!isEquipment && (
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Bookable</p>
-                  <p className={`text-lg font-medium ${r.isBookable ? 'text-green-400' : 'text-red-400'}`}>
+                  <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Bookable</p>
+                  <p className={`text-lg font-medium ${r.isBookable ? 'text-teal-600' : 'text-red-500'}`}>
                     {r.isBookable ? 'Yes' : 'No'}
                   </p>
                 </div>
@@ -191,7 +191,7 @@ export default function ResourceDetails() {
         <div className="flex gap-3 mt-6">
           <Link
             to={`/admin/resources/edit/${r.id}`}
-            className="flex-1 bg-[#1e2535] hover:bg-[#252d3d] text-white py-3.5 rounded-2xl text-center font-medium transition-colors"
+            className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-3.5 rounded-2xl text-center font-medium transition-colors shadow-sm hover:shadow-md"
           >
             Edit Resource
           </Link>
@@ -203,7 +203,7 @@ export default function ResourceDetails() {
                 toast.success('Delete feature coming soon');
               }
             }}
-            className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3.5 rounded-2xl text-center font-medium transition-colors"
+            className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-3.5 rounded-2xl text-center font-medium transition-colors border border-red-200"
           >
             Delete Resource
           </button>

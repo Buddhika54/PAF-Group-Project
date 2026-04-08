@@ -51,7 +51,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({});
   const [pendingBookings, setPendingBookings] = useState([]);
   const [openTickets, setOpenTickets] = useState([]);
-  const [pendingRegistrations, setPendingRegistrations] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -77,7 +76,6 @@ export default function AdminDashboard() {
         setPendingBookings(allBookings.data.filter(b => b.status === 'PENDING').slice(0, 5));
         setOpenTickets(allTickets.data.filter(t => t.status === 'OPEN').slice(0, 5));
         setPendingCount(regCount.count || 0);
-        setPendingRegistrations(Array.isArray(regRequests) ? regRequests.slice(0, 5) : []);
       } catch {}
     };
     fetchAll();
@@ -144,13 +142,6 @@ export default function AdminDashboard() {
             color="bg-red-50 text-red-700"
             icon="🎫"
             onClick={() => navigate('/admin/tickets')}
-          />
-          <StatCard
-            label="Pending Registrations"
-            value={pendingCount}
-            color="bg-yellow-50 text-yellow-700"
-            icon="👤"
-            onClick={() => navigate('/admin/registrations')}
           />
           <StatCard
             label="Out of Service"
@@ -231,62 +222,6 @@ export default function AdminDashboard() {
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
                       No pending bookings
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* ── Registration Requests Table ──────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-800">Recent Registration Requests</h2>
-            <Link
-              to="/admin/registrations"
-              className="text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors"
-            >
-              View all
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-teal-50">
-                <tr className="text-left text-xs font-semibold text-teal-700 uppercase tracking-wide">
-                  <th className="px-6 py-3">Name</th>
-                  <th className="px-6 py-3">Email</th>
-                  <th className="px-6 py-3">Department</th>
-                  <th className="px-6 py-3">Submitted</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {pendingRegistrations.map(req => (
-                  <tr key={req.id} className="hover:bg-teal-50/30 transition-colors">
-                    <td className="px-6 py-3 font-medium text-gray-900">{req.fullName}</td>
-                    <td className="px-6 py-3 text-gray-600">{req.email}</td>
-                    <td className="px-6 py-3 text-gray-600">{req.department}</td>
-                    <td className="px-6 py-3 text-gray-600 text-xs">
-                      <div>{new Date(req.createdAt).toLocaleDateString()}</div>
-                      <div className="text-gray-400">
-                        {Math.floor((new Date() - new Date(req.createdAt)) / (1000 * 60 * 60))}h ago
-                      </div>
-                    </td>
-                    <td className="px-6 py-3">
-                      <button
-                        onClick={() => navigate('/admin/registrations')}
-                        className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-medium transition-colors"
-                      >
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {pendingRegistrations.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
-                      No pending registration requests
                     </td>
                   </tr>
                 )}
