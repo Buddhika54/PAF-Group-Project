@@ -110,6 +110,7 @@ function App() {
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
 
           {/* ── Technician Dashboard ───────────────────── */}
+          <Route path="/technician/dashboard" element={<TechnicianResources />} />
           <Route path="/technician/resources" element={<TechnicianResources />} />
           <Route path="/technician/maintenance-tasks" element={<MaintenanceTasks />} />
 
