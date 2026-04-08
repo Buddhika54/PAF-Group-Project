@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.smartcampus.smart_campus.dto.ResourceStatusUpdateRequest; 
+
 
 import java.util.List;
 import java.util.Map;
@@ -124,9 +126,16 @@ public class CampusResourceController {
     }
 
     // STATUS CHANGE
+
+ 
+
+
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        service.updateStatus(id, body.get("status"));
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long id, 
+            @RequestBody ResourceStatusUpdateRequest request) {
+
+        service.updateStatus(id, request.getStatus(), request.getMaintenanceNote());
         return ResponseEntity.ok().build();
     }
     

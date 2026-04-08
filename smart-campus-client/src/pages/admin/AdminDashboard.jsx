@@ -58,28 +58,46 @@ export default function AdminDashboard() {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [resStats, allBookings, allTickets, regCount, regRequests] = await Promise.all([
-          resourceAPI.getStats(),
-          bookingAPI.getAll(),
-          ticketAPI.getAll(),
-          fetch('http://localhost:8080/api/admin/registrations/pending-count', {
-            headers: { 'Authorization': `Bearer ${token}` },
-          }).then(r => r.ok ? r.json() : { count: 0 }),
-          fetch('http://localhost:8080/api/admin/registrations?status=PENDING', {
-            headers: { 'Authorization': `Bearer ${token}` },
-          }).then(r => r.ok ? r.json() : []),
-        ]);
+  const fetchAll = async () => {
+    try {
+      const resStats = await resourceAPI.getStats();
+      console.log("STATS:", resStats.data);
 
-        setStats(resStats.data);
-        setPendingBookings(allBookings.data.filter(b => b.status === 'PENDING').slice(0, 5));
-        setOpenTickets(allTickets.data.filter(t => t.status === 'OPEN').slice(0, 5));
-        setPendingCount(regCount.count || 0);
-      } catch {}
-    };
-    fetchAll();
-  }, []);
+      const allBookings = await bookingAPI.getAll();
+      console.log("BOOKINGS:", allBookings.data);
+
+      const allTickets = await ticketAPI.getAll();
+      console.log("TICKETS:", allTickets.data);
+      
+      setStats(resStats.data);
+
+      const pending = allBookings.data.filter(b => {
+  const status = typeof b.status === 'string'
+    ? b.status
+    : b.status?.name;
+
+  return status?.toUpperCase() === 'PENDING';
+});
+      setPendingBookings(
+  allBookings.data
+    .filter(b => b.status?.toUpperCase() === 'PENDING')
+    .slice(0, 5)
+);
+
+setOpenTickets(
+  allTickets.data.filter(t => t.status?.toUpperCase() === 'OPEN').slice(0, 5)
+);
+    } catch (err) {
+      console.log("BOOKING STATUS RAW:", allBookings.data.map(b => ({
+  id: b.id,
+  status: b.status
+})));
+      console.error("ERROR:", err);
+    }
+  };
+
+  fetchAll();
+}, []);
 
   const approve = async (id) => {
     try {
@@ -91,6 +109,8 @@ export default function AdminDashboard() {
       toast.error(msg);
     }
   };
+
+
 
   const reject = async () => {
     if (!rejectReason.trim()) return toast.error('Please provide a reason');
@@ -122,6 +142,7 @@ export default function AdminDashboard() {
             value={stats.total}
             color="bg-teal-50 text-teal-700"
             icon="🏛️"
+            onClick={() => navigate('/admin/resources')}
           />
           <StatCard
             label="Active"
