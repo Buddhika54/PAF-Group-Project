@@ -1,27 +1,138 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Each member fills in their own pages
-// Leader creates placeholder pages for now
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Resources from './pages/resource/Resources';
+import ResourceDetails from './pages/resource/ResourceDetails';
+import EditResource from './pages/resource/EditResource';
+import AddResource from './pages/resource/AddResource'; 
+import { Toaster } from 'react-hot-toast';
+
+import { AuthProvider, PrivateRoute } from './context/AuthContext';
+
+import Login from './pages/Login';
+import Homepage from './pages/Homepage';
+import AuthCallback from './pages/AuthCallback';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import Register from './pages/Register';
+import UserDashboard from './pages/user/UserDashboard';
+import MyBookings from './pages/user/MyBooking';
+import NewBooking from './pages/user/NewBooking';
+import ResourceList from './pages/resource/ResourceList';
+import { Navigate } from 'react-router-dom';
+import TechnicianResources from './pages/Technician/TechnicianResource';
+import AdminBookings from './pages/admin/AdminBookings';
+import MaintenanceTasks from './pages/Technician/MaintenanceTask';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Member 4 */}
-        <Route path="/login" element={<div>Login Page</div>} />
+    <AuthProvider>
+      <BrowserRouter>
+
 
         {/* Member 1 */}
-        <Route path="/resources" element={<div>Resource List</div>} />
-        <Route path="/resources/:id" element={<div>Resource Detail</div>} />
+        
+          {/* Member 2 */}
+        {/* ── Toast Notifications ──────────────────────── */}
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '500',
+            },
+            success: {
+              style: {
+                background: '#0d9488',
+                color: '#fff',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#0d9488',
+              },
+            },
+            error: {
+              style: {
+                background: '#ef4444',
+                color: '#fff',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#ef4444',
+              },
+            },
+          }}
+        />
 
-        {/* Member 2 */}
-        <Route path="/bookings" element={<div>Bookings</div>} />
+        {/* ── Routes ───────────────────────────────────── */}
+        <Routes>
 
-        {/* Member 3 */}
-        <Route path="/tickets" element={<div>Tickets</div>} />
-      </Routes>
-    </BrowserRouter>
+          {/* Public Routes */}
+          <Route path="/" element={<Homepage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/bookings/new" element={<NewBooking />} />
+          <Route path="/resourceslist" element={<ResourceList />} />
+
+          {/* Admin Routes wrapped in Navbar */}
+          {/* <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <Navbar>
+                  <AdminDashboard />
+                </Navbar>
+              </AdminRoute>
+            }
+          />
+          <Route path="/register" element={<div>Register Page</div>} />
+
+          {/* ── Admin Routes ───────────────────────────── */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
+          
+          <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
+          <Route path="/admin/users" element={<div>Admin Users</div>} />
+
+
+          <Route path="/admin/resources" element={<Resources />} />
+        <Route path="/admin/resources/add" element={<AddResource />} />
+        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+
+          {/* ── User Dashboard ─────────────────────────── */}
+          <Route path="/dashboard" element={<div>User Dashboard</div>} />
+
+          {/* ── Technician Dashboard ───────────────────── */}
+          <Route path="/technician/resources" element={<TechnicianResources />} />
+          <Route path="/technician/maintenance-tasks" element={<MaintenanceTasks />} />
+
+          {/* ── Member 1 — Resources ───────────────────── */}
+          <Route path="/resources" element={<div>Resource List</div>} />
+          <Route path="/resources/:id" element={<div>Resource Detail</div>} />
+
+          {/* ── Member 2 — Bookings ────────────────────── */}
+          <Route path="/bookings" element={<div>Bookings</div>} />
+          <Route path="/my-bookings" element={<div>My Bookings</div>} />
+
+          {/* ── Member 3 — Tickets ─────────────────────── */}
+          <Route path="/tickets" element={<div>Tickets</div>} />
+          <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
+
+          {/* ── 404 Fallback ───────────────────────────── 
+          <Route path="*" element={<Navigate to="/login" replace />} />*/}
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
 export default App;
+
