@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -63,37 +63,28 @@ if (!res.ok) {
 
 const data = await res.json();
 
-console.log("LOGIN DATA:", data);
+      console.log("LOGIN DATA:", data);
 
-const token = data?.data?.token;
-const role = data?.data?.role || data?.role;
+      const token = data?.data?.token;
+      const role = data?.data?.role || data?.role;
 
-if (!token) {
-  console.error("TOKEN NOT FOUND", data);
-  setError("Login failed. No token received");
-  return;
-}
+      if (!token) {
+        console.error("TOKEN NOT FOUND", data);
+        setError("Login failed. No token received");
+        return;
+      }
 
-// ✅ store token
-localStorage.setItem("token", token);
+      // Use AuthContext login method to properly update authentication state
+      login(token);
 
-// (optional)
-localStorage.setItem("role", role);
-
-// FIX ROLE ACCESS
-if (!role) {
-  console.error("ROLE NOT FOUND", data);
-  return;
-}
-
-
-window.location.href =
-  role === "ADMIN"
-    ? "/admin/dashboard"
-    : role === "TECHNICIAN"
-      ? "/technician/dashboard"
-      : "/dashboard";
-      
+      // Navigate based on role
+      navigate(
+        role === "ADMIN"
+          ? "/admin/dashboard"
+          : role === "TECHNICIAN"
+            ? "/technician/dashboard"
+            : "/dashboard"
+      );
     } catch (err) {
       setError("Cannot connect to server. Make sure backend is running.");
     } finally {

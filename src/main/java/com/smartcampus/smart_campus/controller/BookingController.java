@@ -123,8 +123,6 @@ public class BookingController {
             // Must be logged in to create booking
             User user = (User) auth.getPrincipal();
 
-            System.out.println("AUTH: " + auth);
-            
             // Validate required fields
             if (!bookingData.containsKey("resourceId")) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Resource ID is required"));

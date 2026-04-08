@@ -15,16 +15,6 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.clear();
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
 
 //_____Resource_____
 

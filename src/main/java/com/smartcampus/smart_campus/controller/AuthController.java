@@ -3,6 +3,7 @@ package com.smartcampus.smart_campus.controller;
 import com.smartcampus.smart_campus.dto.*;
 import com.smartcampus.smart_campus.model.User;
 import com.smartcampus.smart_campus.repository.UserRepository;
+import com.smartcampus.smart_campus.security.JwtUtil;
 import com.smartcampus.smart_campus.service.UserService;
 
 import jakarta.validation.Valid;
@@ -61,6 +62,14 @@ public class AuthController {
         }
     }
 
+    private final JwtUtil jwtUtil;
+
+    @Autowired
+    public AuthController(JwtUtil jwtUtil, UserService userService) {
+        this.jwtUtil = jwtUtil;
+        this.userService = userService;
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @RequestBody LoginRequest request) {
@@ -71,6 +80,20 @@ public class AuthController {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error(e.getMessage()));
         }
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+        }
+        User user = (User) auth.getPrincipal();
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "email", user.getEmail(),
+                "name", user.getName(),
+                "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : "",
+                "role", user.getRole().name()
+        ));
     }
 
     @GetMapping("/check-email")

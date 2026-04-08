@@ -3,6 +3,7 @@ package com.smartcampus.smart_campus.service;
 import com.smartcampus.smart_campus.dto.*;
 import com.smartcampus.smart_campus.model.User;
 import com.smartcampus.smart_campus.repository.UserRepository;
+import com.smartcampus.smart_campus.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Transactional
     public UserResponse registerUser(RegisterRequest request) {
@@ -67,8 +71,8 @@ public class UserService {
     }
 
     private String generateToken(User user) {
-        // Implement JWT generation or return session token
-        return "token_" + user.getId() + "_" + System.currentTimeMillis();
+        // Use proper JWT token generation
+        return jwtUtil.generateToken(user);
     }
 
     public boolean emailExists(String email) {
@@ -78,6 +82,12 @@ public class UserService {
     public boolean usernameExists(String username) {
         return userRepository.existsByUsername(username);
     }
+
+     public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    
 
     
 }

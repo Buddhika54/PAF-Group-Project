@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
             email: decoded.sub,
             picture: decoded.picture,
             role: decoded.role,
+            password: decoded.password,
           });
         } else {
           localStorage.clear();
@@ -33,15 +34,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token) => {
+  console.log('AUTH CONTEXT - login() called with token:', token ? 'exists' : 'missing');
   localStorage.setItem('token', token);
   const decoded = jwtDecode(token);
 
+  console.log('AUTH CONTEXT - Setting user state:', decoded);
   setToken(token);
   setUser({
     id: decoded.id,
     name: decoded.name,
     email: decoded.sub,
     picture: decoded.picture,
+    password: decoded.password,
     role: decoded.role || "USER",
   });
 };
@@ -78,9 +82,13 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => useContext(AuthContext);
 
 export const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isUser } = useAuth();
   if (!isAuthenticated) {
     window.location.href = '/login';
+    return null;
+  }
+  if (!isAdmin) {
+    window.location.href = '/dashboard';
     return null;
   }
   return children;
