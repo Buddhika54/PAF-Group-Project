@@ -141,8 +141,9 @@ setOpenTickets(
             label="Total Resources"
             value={stats.total}
             color="bg-teal-50 text-teal-700"
-            icon="🏛️"
             onClick={() => navigate('/admin/resources')}
+            icon="🏛️"
+            
           />
           <StatCard
             label="Active"
