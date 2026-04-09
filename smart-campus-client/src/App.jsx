@@ -20,6 +20,7 @@ import ResourceList from './pages/resource/ResourceList';
 import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
 import AdminBookings from './pages/admin/AdminBookings';
+import AdminNotifications from './pages/admin/AdminNotifications';
 import MaintenanceTasks from './pages/Technician/MaintenanceTask';
 import Tickets from './pages/user/Tickets';
 import NewTicket from './pages/user/NewTicket';
@@ -114,6 +115,7 @@ function App() {
         <Route path="/admin/resources/add" element={<AddResource />} />
         <Route path="/admin/resources/edit/:id" element={<EditResource />} />
         <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           
