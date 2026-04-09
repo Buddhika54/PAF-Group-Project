@@ -125,6 +125,13 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTicket(@PathVariable Long id, Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        ticketService.deleteTicket(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/attachments")
     public ResponseEntity<TicketAttachment> uploadAttachment(@PathVariable Long id,
                                                               @RequestParam("file") MultipartFile file) throws Exception {

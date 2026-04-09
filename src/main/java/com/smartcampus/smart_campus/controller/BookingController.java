@@ -186,6 +186,12 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/my/stats")
+    public ResponseEntity<Map<String, Long>> getMyStats(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return ResponseEntity.ok(bookingservice.getUserStats(user.getId()));
+    }
+
     // ── PUT /api/bookings/{id}/approve ───────────
     // Approve a booking — ADMIN only
     @PutMapping("/{id}/approve")
