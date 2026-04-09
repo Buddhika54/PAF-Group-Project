@@ -15,7 +15,9 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Use a fixed secret key to ensure consistency across server restarts
+    private static final String SECRET_KEY_STRING = "smartcampus_jwt_secret_key_for_production_use_2024";
+    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes());
     private final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours
 
     public String generateToken(User user) {

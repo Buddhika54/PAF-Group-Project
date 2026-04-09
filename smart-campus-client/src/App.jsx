@@ -27,7 +27,11 @@ import EditResource from './pages/resource/EditResource';
 import AddResource from './pages/resource/AddResource';
 
 // Technician
+import ResourceList from './pages/resource/ResourceList';
+import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
+import AdminBookings from './pages/admin/AdminBookings';
+import MaintenanceTasks from './pages/Technician/MaintenanceTask';
 
 function App() {
   return (
@@ -130,6 +134,61 @@ function App() {
 
           {/* 404 Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/bookings/new" element={<NewBooking />} />
+          <Route path="/resourceslist" element={<ResourceList />} />
+
+          {/* Admin Routes wrapped in Navbar */}
+          {/* <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <Navbar>
+                  <AdminDashboard />
+                </Navbar>
+              </AdminRoute>
+            }
+          />
+          <Route path="/register" element={<div>Register Page</div>} />
+
+          {/* ── Admin Routes ───────────────────────────── */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
+          <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
+          
+          <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
+          <Route path="/admin/users" element={<div>Admin Users</div>} />
+
+
+          <Route path="/admin/resources" element={<Resources />} />
+        <Route path="/admin/resources/add" element={<AddResource />} />
+        <Route path="/admin/resources/edit/:id" element={<EditResource />} />
+        <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+
+          {/* ── User Dashboard ─────────────────────────── */}
+          <Route path="/dashboard" element={<div>User Dashboard</div>} />
+
+          {/* ── Technician Dashboard ───────────────────── */}
+          <Route path="/technician/dashboard" element={<TechnicianResources />} />
+          <Route path="/technician/resources" element={<TechnicianResources />} />
+          <Route path="/technician/maintenance-tasks" element={<MaintenanceTasks />} />
+
+          {/* ── Member 1 — Resources ───────────────────── */}
+          <Route path="/resources" element={<div>Resource List</div>} />
+          <Route path="/resources/:id" element={<div>Resource Detail</div>} />
+
+          {/* ── Member 2 — Bookings ────────────────────── */}
+          <Route path="/bookings" element={<div>Bookings</div>} />
+          <Route path="/my-bookings" element={<div>My Bookings</div>} />
+
+          {/* ── Member 3 — Tickets ─────────────────────── */}
+          <Route path="/tickets" element={<div>Tickets</div>} />
+          <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
+
+          {/* ── 404 Fallback ───────────────────────────── 
+          <Route path="*" element={<Navigate to="/login" replace />} />*/}
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

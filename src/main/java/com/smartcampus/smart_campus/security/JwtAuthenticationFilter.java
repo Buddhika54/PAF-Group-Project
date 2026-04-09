@@ -12,6 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.smartcampus.smart_campus.repository.UserRepository;
+import com.smartcampus.smart_campus.model.User;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -21,6 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private jwtUtils jwtUtils;
 
+    private JwtUtil jwtUtil;
+    
     @Autowired
     private UserRepository userRepository;
 
@@ -66,6 +71,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            String role = jwtUtil.extractRole(jwt);
+            if (jwtUtil.validateToken(jwt, username)) {
+                // Load the actual User object from database
+                User user = userRepository.findByEmail(username).orElse(null);
+                if (user != null) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            user, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        }
         chain.doFilter(request, response);
     }
 }

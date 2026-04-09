@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: "http://localhost:8080/api",
 });
 
 // Always attach token if it exists
@@ -22,9 +22,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return Promise.reject(error);
-  }
+    return config;
+  },
+  (error) => Promise.reject(error),
 );
 
 export const bookingAPI = {
@@ -57,6 +61,21 @@ export const ticketAPI = {
 
 export const resourceAPI = {
   getAll: () => api.get('/resources'),
+  create: (data) => api.post("/bookings", data),
+  getMyBookings: () => api.get("/bookings/my"),
+  getMyStats: () => api.get("/bookings/my/stats"),
+  getAll: () => api.get("/bookings"),
+  getById: (id) => api.get(`/bookings/${id}`),
+  approve: (id) => api.put(`/bookings/${id}/approve`),
+  reject: (id, reason) =>
+    api.put(`/bookings/${id}/reject`, { rejectionReason: reason }),
+  cancel: (id) => api.put(`/bookings/${id}/cancel`),
+};
+
+//_____Ticket_____
+export const ticketAPI = {
+  create: (data) => api.post("/tickets", data),
+  getAll: () => api.get("/tickets"),
 };
 
 export default api;

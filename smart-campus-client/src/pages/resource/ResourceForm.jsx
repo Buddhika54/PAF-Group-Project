@@ -37,7 +37,6 @@ export default function ResourceForm({ onSubmit, initialData = {} }) {
       if (form.location) formData.append('location', form.location);
     } else {
       if (form.specialNotes) formData.append('specialNotes', form.specialNotes);
-      // Only append image if it's Equipment
       if (image) formData.append('image', image);
     }
 
@@ -50,195 +49,186 @@ export default function ResourceForm({ onSubmit, initialData = {} }) {
 
   const isEquipment = form.type === 'EQUIPMENT';
 
-  const inputClass = 
-    'bg-[#0d0f14] border border-[#1e2535] text-slate-300 text-sm px-4 py-3 rounded-xl outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600 w-full';
+  // Improved styles with better sizing
+  const inputClass =
+    'bg-white border border-gray-200 text-gray-700 text-sm px-4 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition placeholder:text-gray-400 w-full';
 
-  const labelClass = 'text-xs font-medium text-slate-400 uppercase tracking-widest mb-1.5 block';
+  const labelClass =
+    'text-xs font-semibold text-gray-600 mb-1.5 block';
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Name */}
-      <div>
-        <label className={labelClass}>Resource Name</label>
-        <input
-          name="name"
-          placeholder="e.g. Main Lecture Hall A-101"
-          value={form.name}
-          onChange={handleChange}
-          className={inputClass}
-          required
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto px-4 py-6">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {initialData.id ? 'Edit Resource' : 'New Resource'}
+          </h3>
+          <p className="text-xs text-gray-500 mt-0.5">Fill in the details below</p>
+        </div>
 
-      {/* Type */}
-      <div>
-        <label className={labelClass}>Resource Type</label>
-        <select
-          name="type"
-          value={form.type}
-          onChange={handleChange}
-          className={`${inputClass} py-3`}
-        >
-          <option value="LECTURE_HALL">Lecture Hall</option>
-          <option value="LAB">Lab</option>
-          <option value="MEETING_ROOM">Meeting Room</option>
-          <option value="EQUIPMENT">Equipment</option>
-        </select>
-      </div>
-
-      {/* Non-Equipment Fields */}
-      {!isEquipment && (
-        <>
+        {/* Body */}
+        <div className="p-6 space-y-5">
+          {/* Name */}
           <div>
-            <label className={labelClass}>Capacity (Persons)</label>
+            <label className={labelClass}>Resource Name</label>
             <input
-              name="capacity"
-              type="number"
-              placeholder="Maximum number of people"
-              value={form.capacity}
+              name="name"
+              value={form.name}
               onChange={handleChange}
               className={inputClass}
+              required
+              placeholder="e.g., Hall A, Projector, etc."
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Building</label>
-              <input
-                name="building"
-                placeholder="e.g. Science Block"
-                value={form.building}
-                onChange={handleChange}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Location / Floor</label>
-              <input
-                name="location"
-                placeholder="e.g. Ground Floor, Room 205"
-                value={form.location}
-                onChange={handleChange}
-                className={inputClass}
-              />
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Equipment Fields */}
-      {isEquipment && (
-        <div>
-          <label className={labelClass}>Special Notes / Specifications</label>
-          <textarea
-            name="specialNotes"
-            placeholder="Brand, Model, Serial Number, Specifications, etc."
-            value={form.specialNotes}
-            onChange={handleChange}
-            rows={4}
-            className={`${inputClass} resize-y min-h-[110px]`}
-          />
-        </div>
-      )}
-
-      {/* Availability Time Range */}
-      <div>
-        <label className={labelClass}>Availability (Daily Time Range)</label>
-        <div className="bg-[#161b27] border border-[#1e2535] rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-center">
-          <div className="flex-1 w-full">
-            <p className="text-xs text-slate-500 mb-1">Start Time</p>
-            <input
-              type="time"
-              name="availabilityStart"
-              value={form.availabilityStart}
+          {/* Type */}
+          <div>
+            <label className={labelClass}>Type</label>
+            <select
+              name="type"
+              value={form.type}
               onChange={handleChange}
-              className={`${inputClass} text-center font-mono`}
-            />
-          </div>
-
-          <div className="text-slate-500 text-xl font-light hidden sm:block">→</div>
-
-          <div className="flex-1 w-full">
-            <p className="text-xs text-slate-500 mb-1">End Time</p>
-            <input
-              type="time"
-              name="availabilityEnd"
-              value={form.availabilityEnd}
-              onChange={handleChange}
-              className={`${inputClass} text-center font-mono`}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Maintenance Note */}
-      <div>
-        <label className={labelClass}>Maintenance Note</label>
-        <textarea
-          name="maintenanceNote"
-          placeholder="Any special maintenance instructions..."
-          value={form.maintenanceNote}
-          onChange={handleChange}
-          rows={3}
-          className={`${inputClass} resize-y min-h-[100px]`}
-        />
-      </div>
-
-      {/* Bookable Checkbox */}
-      <div className="flex items-center gap-3 bg-[#161b27] border border-[#1e2535] rounded-2xl px-4 py-3.5">
-        <input
-          type="checkbox"
-          name="isBookable"
-          checked={form.isBookable}
-          onChange={handleChange}
-          className="w-4 h-4 accent-indigo-500"
-        />
-        <div>
-          <p className="text-sm text-[#f0f4ff]">Bookable by users</p>
-          <p className="text-xs text-slate-500">Allow students and staff to book this resource</p>
-        </div>
-      </div>
-
-      {/* Image Upload - ONLY for EQUIPMENT */}
-      {isEquipment && (
-        <div>
-          <label className={labelClass}>Resource Image (Optional)</label>
-          <div className="mt-1 border border-dashed border-[#1e2535] rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-colors">
-            <input
-              type="file"
-              onChange={(e) => setImage(e.target.files?.[0] || null)}
-              className="hidden"
-              id="resource-image"
-              accept="image/*"
-            />
-            <label
-              htmlFor="resource-image"
-              className="cursor-pointer flex flex-col items-center gap-2"
+              className={inputClass}
             >
-              <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-2xl">
-                📸
+              <option value="LECTURE_HALL">Lecture Hall</option>
+              <option value="LAB">Lab</option>
+              <option value="MEETING_ROOM">Meeting Room</option>
+              <option value="EQUIPMENT">Equipment</option>
+            </select>
+          </div>
+
+          {/* Non-Equipment */}
+          {!isEquipment && (
+            <>
+              <div>
+                <label className={labelClass}>Capacity</label>
+                <input
+                  name="capacity"
+                  type="number"
+                  value={form.capacity}
+                  onChange={handleChange}
+                  className={inputClass}
+                  placeholder="Number of people"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Building</label>
+                  <input
+                    name="building"
+                    value={form.building}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="e.g., Science Tower"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Location</label>
+                  <input
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    className={inputClass}
+                    placeholder="Floor, Room #"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Equipment */}
+          {isEquipment && (
+            <div>
+              <label className={labelClass}>Notes</label>
+              <textarea
+                name="specialNotes"
+                value={form.specialNotes}
+                onChange={handleChange}
+                rows={3}
+                className={`${inputClass} resize-none`}
+                placeholder="Any special instructions or notes about this equipment"
+              />
+            </div>
+          )}
+
+          {/* Availability */}
+          <div>
+            <label className={labelClass}>Availability Hours</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] text-gray-400 mb-1 block">Start</label>
+                <input
+                  type="time"
+                  name="availabilityStart"
+                  value={form.availabilityStart}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
               </div>
               <div>
-                <p className="text-sm text-slate-300">Click to upload image</p>
-                <p className="text-xs text-slate-500">PNG, JPG up to 5MB</p>
+                <label className="text-[11px] text-gray-400 mb-1 block">End</label>
+                <input
+                  type="time"
+                  name="availabilityEnd"
+                  value={form.availabilityEnd}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
               </div>
-            </label>
-            {image && (
-              <p className="mt-3 text-xs text-emerald-400 font-medium">
-                Selected: {image.name}
-              </p>
-            )}
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        className="w-full bg-gradient-to-br from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white font-medium py-3.5 rounded-2xl transition-all active:scale-[0.985]"
-      >
-        {initialData.id ? 'Update Resource' : 'Create Resource'}
-      </button>
+          {/* Maintenance */}
+          <div>
+            <label className={labelClass}>Maintenance Notes</label>
+            <textarea
+              name="maintenanceNote"
+              value={form.maintenanceNote}
+              onChange={handleChange}
+              rows={2}
+              className={`${inputClass} resize-none`}
+              placeholder="Any maintenance issues or schedule"
+            />
+          </div>
+
+          {/* Checkbox */}
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              name="isBookable"
+              checked={form.isBookable}
+              onChange={handleChange}
+              className="w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500 focus:ring-2"
+            />
+            <label className="text-sm text-gray-700 font-medium">Available for booking</label>
+          </div>
+
+          {/* Image */}
+          {isEquipment && (
+            <div>
+              <label className={labelClass}>Image (optional)</label>
+              <input
+                type="file"
+                onChange={(e) => setImage(e.target.files?.[0] || null)}
+                className="text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:text-sm file:rounded-lg file:border-0 file:text-gray-700 file:bg-gray-100 hover:file:bg-gray-200 file:cursor-pointer"
+                accept="image/*"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <button
+            type="submit"
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white text-base py-2.5 rounded-xl font-semibold transition-colors shadow-sm hover:shadow"
+          >
+            {initialData.id ? 'Update Resource' : 'Create Resource'}
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

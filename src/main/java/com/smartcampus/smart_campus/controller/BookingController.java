@@ -123,8 +123,6 @@ public class BookingController {
             // Must be logged in to create booking
             User user = (User) auth.getPrincipal();
 
-            System.out.println("AUTH: " + auth);
-            
             // Validate required fields
             if (!bookingData.containsKey("resourceId")) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Resource ID is required"));
@@ -186,6 +184,12 @@ public class BookingController {
             return ResponseEntity.badRequest()
                 .body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/my/stats")
+    public ResponseEntity<Map<String, Long>> getMyStats(Authentication auth) {
+        User user = (User) auth.getPrincipal();
+        return ResponseEntity.ok(bookingservice.getUserStats(user.getId()));
     }
 
     // ── PUT /api/bookings/{id}/approve ───────────
