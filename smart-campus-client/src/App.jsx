@@ -21,6 +21,13 @@ import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
 import AdminBookings from './pages/admin/AdminBookings';
 import MaintenanceTasks from './pages/Technician/MaintenanceTask';
+import Tickets from './pages/user/Tickets';
+import NewTicket from './pages/user/NewTicket';
+import TicketDetail from './pages/user/TicketDetail';
+
+import AdminTickets from './pages/admin/AdminTickets';
+
+
 
 function App() {
   return (
@@ -95,7 +102,9 @@ function App() {
           {/* ── Admin Routes ───────────────────────────── */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
-          <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
+          <Route path="/admin/tickets" element={
+  <PrivateRoute><AdminTickets /></PrivateRoute>
+} />
           
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
           <Route path="/admin/users" element={<div>Admin Users</div>} />
@@ -107,7 +116,7 @@ function App() {
         <Route path="/admin/resources/:id" element={<ResourceDetails />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
-          <Route path="/dashboard" element={<div>User Dashboard</div>} />
+          
 
           {/* ── Technician Dashboard ───────────────────── */}
           <Route path="/technician/dashboard" element={<TechnicianResources />} />
@@ -119,12 +128,21 @@ function App() {
           <Route path="/resources/:id" element={<div>Resource Detail</div>} />
 
           {/* ── Member 2 — Bookings ────────────────────── */}
-          <Route path="/bookings" element={<div>Bookings</div>} />
-          <Route path="/my-bookings" element={<div>My Bookings</div>} />
+         
 
           {/* ── Member 3 — Tickets ─────────────────────── */}
-          <Route path="/tickets" element={<div>Tickets</div>} />
-          <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
+          {/* ── Tickets (USER) ─────────────────────── */}
+          <Route path="/tickets" element={
+            <PrivateRoute><Tickets /></PrivateRoute>
+          } />
+
+          <Route path="/tickets/new" element={
+            <PrivateRoute><NewTicket /></PrivateRoute>
+          } />
+
+          <Route path="/tickets/:id" element={
+            <PrivateRoute><TicketDetail /></PrivateRoute>
+          } />
 
           {/* ── 404 Fallback ───────────────────────────── 
           <Route path="*" element={<Navigate to="/login" replace />} />*/}

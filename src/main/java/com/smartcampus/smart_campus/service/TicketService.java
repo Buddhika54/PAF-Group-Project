@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -134,16 +135,32 @@ public class TicketService {
         attachment.setFileType(file.getContentType());
         attachment.setFileSizeBytes(file.getSize());
 
-        // Directly save via entity manager — attach to ticket
         ticket.getAttachments().add(attachment);
         ticketRepository.save(ticket);
         return attachment;
     }
 
     public Map<String, Long> getUserStats(Long userId) {
+        long open = ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.OPEN);
+        long inProgress = ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.IN_PROGRESS);
+        long resolved = ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.RESOLVED);
+        long closed = ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.CLOSED);
+
         return Map.of(
-                "open", ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.OPEN),
-                "resolved", ticketRepository.countByCreatedByIdAndStatus(userId, Ticket.TicketStatus.RESOLVED)
+            "total", open + inProgress + resolved + closed,
+            "open", open,
+            "inProgress", inProgress,
+            "resolved", resolved,
+            "closed", closed
         );
     }
+
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+
+    public void deleteById(Long id) {
+    ticketRepository.deleteById(id);
+}
 }
