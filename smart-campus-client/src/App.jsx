@@ -19,6 +19,7 @@ import NewBooking from './pages/user/NewBooking';
 import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
 import AdminBookings from './pages/admin/AdminBookings';
+import AdminNotifications from './pages/admin/AdminNotifications';
 
 function App() {
   return (
@@ -102,6 +103,7 @@ function App() {
         <Route path="/admin/resources/add" element={<AddResource />} />
         <Route path="/admin/resources/edit/:id" element={<EditResource />} />
         <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
           <Route path="/dashboard" element={<div>User Dashboard</div>} />
