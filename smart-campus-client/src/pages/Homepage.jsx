@@ -155,7 +155,7 @@ function HeroSection() {
             and incident reports across SLIIT campus. Streamline your
             university experience today.
           </p>
-
+          
           {/* CTA buttons */}
           <div className="flex flex-wrap gap-4 mb-12">
             <Link to="/register"
@@ -170,7 +170,8 @@ function HeroSection() {
               Sign In
             </Link>
           </div>
-
+          
+          {/* Stats */}
           {/* Stats */}
           <div className="flex flex-wrap gap-8">
             {[
