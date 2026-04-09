@@ -63,7 +63,7 @@ export default function UserDashboard() {
   useEffect(() => {
     const fetchAll = async () => {
 
-      //  BOOKINGS (your original logic)
+      // BOOKINGS
       try {
         const [bStats, bList] = await Promise.all([
           bookingAPI.getMyStats(),
@@ -80,7 +80,7 @@ export default function UserDashboard() {
         setRecentBookings([]);
       }
 
-      //  TICKETS (added cleanly)
+      // TICKETS
       try {
         const [tStats, tList] = await Promise.all([
           ticketAPI.getMyStats(),
@@ -143,54 +143,86 @@ export default function UserDashboard() {
           <StatCard label="Resolved Tickets" value={ticketStats.resolved} color="bg-green-50 text-green-700" icon="✅" />
         </div>
 
-        {/* Recent Bookings */}
+        {/* Recent Bookings WITH COLUMN HEADERS */}
         <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
           <div className="flex justify-between px-6 py-4 border-b">
-            <h2>Recent Bookings</h2>
-            <Link to="/my-bookings">View all</Link>
+            <h2 className="font-semibold text-gray-800">Recent Bookings</h2>
+            <Link to="/my-bookings" className="text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors">
+              View all
+            </Link>
           </div>
 
-          <table className="w-full text-sm">
-            <tbody>
-              {recentBookings.map(b => (
-                <tr key={b.id}>
-                  <td className="px-6 py-3">{b.resource?.name}</td>
-                  <td>{b.bookingDate}</td>
-                  <td>{b.startTime} – {b.endTime}</td>
-                  <td>{statusBadge(b.status)}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-teal-50">
+                <tr className="text-left text-xs font-semibold text-teal-700 uppercase tracking-wide">
+                  <th className="px-6 py-3">Resource</th>
+                  <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Time</th>
+                  <th className="px-6 py-3">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {recentBookings.map(b => (
+                  <tr key={b.id} className="hover:bg-teal-50/30 transition-colors">
+                    <td className="px-6 py-3 font-medium text-gray-900">{b.resource?.name}</td>
+                    <td className="px-6 py-3 text-gray-600">{b.bookingDate}</td>
+                    <td className="px-6 py-3 text-gray-600">{b.startTime} – {b.endTime}</td>
+                    <td className="px-6 py-3">{statusBadge(b.status)}</td>
+                  </tr>
+                ))}
+                {recentBookings.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                      No bookings yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/*  Recent Tickets (NOW ENABLED) */}
+        {/* Recent Tickets WITH COLUMN HEADERS */}
         <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
           <div className="flex justify-between px-6 py-4 border-b">
-            <h2>Recent Tickets</h2>
-            <Link to="/tickets">View all</Link>
+            <h2 className="font-semibold text-gray-800">Recent Tickets</h2>
+            <Link to="/tickets" className="text-sm text-teal-600 hover:text-teal-700 hover:underline transition-colors">
+              View all
+            </Link>
           </div>
 
-          <table className="w-full text-sm">
-            <tbody>
-              {recentTickets.map(t => (
-                <tr key={t.id}>
-                  <td className="px-6 py-3">{t.title}</td>
-                  <td>{priorityBadge(t.priority)}</td>
-                  <td>{ticketStatusBadge(t.status)}</td>
-                  <td>{t.createdAt?.split('T')[0]}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-teal-50">
+                <tr className="text-left text-xs font-semibold text-teal-700 uppercase tracking-wide">
+                  <th className="px-6 py-3">Title</th>
+                  <th className="px-6 py-3">Priority</th>
+                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">Created</th>
                 </tr>
-              ))}
-
-              {recentTickets.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center py-6 text-gray-400">
-                    No tickets yet
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {recentTickets.map(t => (
+                  <tr key={t.id} className="hover:bg-teal-50/30 transition-colors">
+                    <td className="px-6 py-3 font-medium text-gray-900">{t.title}</td>
+                    <td className="px-6 py-3">{priorityBadge(t.priority)}</td>
+                    <td className="px-6 py-3">{ticketStatusBadge(t.status)}</td>
+                    <td className="px-6 py-3 text-gray-500 text-xs">
+                      {t.createdAt?.split('T')[0]}
+                    </td>
+                  </tr>
+                ))}
+                {recentTickets.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                      No tickets yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
