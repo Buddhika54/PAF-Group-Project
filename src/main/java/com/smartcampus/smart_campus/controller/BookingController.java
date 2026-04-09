@@ -202,44 +202,11 @@ public class BookingController {
             }
 
             User admin = (User) auth.getPrincipal();
-            Booking booking = bookingRepository
-                .findById(id)
-                .orElseThrow(() ->
-                    new RuntimeException(
-                        "Booking not found"));
 
-            // ── Check not already reviewed ───────
-            if (booking.getStatus() !=
-                    Booking.BookingStatus.PENDING) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error",
-                        "Booking is not in PENDING state"));
-            }
+            // The service method handles state check, time conflict, status update, and notification.
+            Booking approvedBooking = bookingservice.approveBooking(id, admin);
 
-            // ── Check time conflict ──────────────
-            boolean conflict = bookingRepository
-                .existsConflict(
-                    booking.getResource().getId(),
-                    booking.getBookingDate(),
-                    booking.getStartTime(),
-                    booking.getEndTime(),
-                    id
-                );
-
-            if (conflict) {
-                return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("error",
-                        "Resource already booked " +
-                        "for this time slot"));
-            }
-
-            booking.setStatus(Booking.BookingStatus.APPROVED);
-            booking.setReviewedBy(admin);
-            bookingRepository.save(booking);
-
-            return ResponseEntity.ok(booking);
+            return ResponseEntity.ok(approvedBooking);
 
         } catch (Exception e) {
             return ResponseEntity
@@ -265,30 +232,12 @@ public class BookingController {
             }
 
             User admin = (User) auth.getPrincipal();
-            String reason = request
-                .getOrDefault("rejectionReason",
-                    "No reason provided");
+            String reason = request.getOrDefault("rejectionReason", "No reason provided");
 
-            Booking booking = bookingRepository
-                .findById(id)
-                .orElseThrow(() ->
-                    new RuntimeException(
-                        "Booking not found"));
+            // The service method handles state check, status update, reason, and notification.
+            Booking rejectedBooking = bookingservice.rejectBooking(id, admin, reason);
 
-            if (booking.getStatus() !=
-                    Booking.BookingStatus.PENDING) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error",
-                        "Booking is not in PENDING state"));
-            }
-
-            booking.setStatus(Booking.BookingStatus.REJECTED);
-            booking.setRejectionReason(reason);
-            booking.setReviewedBy(admin);
-            bookingRepository.save(booking);
-
-            return ResponseEntity.ok(booking);
+            return ResponseEntity.ok(rejectedBooking);
 
         } catch (Exception e) {
             return ResponseEntity
@@ -313,41 +262,11 @@ public class BookingController {
             }
 
             User user = (User) auth.getPrincipal();
-            Booking booking = bookingRepository
-                .findById(id)
-                .orElseThrow(() ->
-                    new RuntimeException(
-                        "Booking not found"));
 
-            // ── Only owner or admin can cancel ───
-            boolean isOwner = booking.getUsername()
-                .equals(user.getUsername());
-            boolean isAdmin = user.getRole()
-                .name().equals("ADMIN");
+            // The service method handles authorization, state check, status update, and notification.
+            Booking cancelledBooking = bookingservice.cancelBooking(id, user);
 
-            if (!isOwner && !isAdmin) {
-                return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error",
-                        "You cannot cancel " +
-                        "this booking"));
-            }
-
-            // ── Can only cancel PENDING or APPROVED
-            if (booking.getStatus() ==
-                    Booking.BookingStatus.REJECTED ||
-                booking.getStatus() ==
-                    Booking.BookingStatus.CANCELLED) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error",
-                        "Cannot cancel this booking"));
-            }
-
-            booking.setStatus(Booking.BookingStatus.CANCELLED);
-            bookingRepository.save(booking);
-
-            return ResponseEntity.ok(booking);
+            return ResponseEntity.ok(cancelledBooking);
 
         } catch (Exception e) {
             return ResponseEntity

@@ -14,6 +14,9 @@ public class CampusResourceService {
      @Autowired
     private CampusResourceRepository repo;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -38,7 +41,9 @@ public class CampusResourceService {
         if (image != null && !image.isEmpty()) {
             r.setImageUrl(saveImage(image));
         }
-        return repo.save(r);
+        CampusResource saved = repo.save(r);
+        notificationService.notifyAllUsersResourceAdded(saved);
+        return saved;
     }
 
     // UPDATE
