@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { bookingAPI, ticketAPI } from '../../api/axiosInstance';
 import Navbar from '../../components/layout/Navbar';
+import SmartSuggestions from '../../components/SmartSuggestions'; // Import the AI component
+import AILearningDashboard from '../../components/AILearningDashboard';
 
 const StatCard = ({ label, value, color, icon }) => (
   <div className={`${color} rounded-2xl p-5 flex items-center gap-4 shadow-sm`}>
@@ -32,6 +34,7 @@ export default function UserDashboard() {
   const [ticketStats, setTicketStats] = useState({});
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentTickets, setRecentTickets] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(true); // Toggle for suggestions
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -68,6 +71,35 @@ export default function UserDashboard() {
   return (
     <Navbar>
       <div className="space-y-8 animate-[fadeIn_0.4s_ease]">
+        
+        {/* ============================================ */}
+        {/* AI SMART SUGGESTIONS SECTION */}
+        {/* ============================================ */}
+        {showSuggestions && (
+          <div className="relative">
+            {/* Close button for suggestions */}
+            <button
+              onClick={() => setShowSuggestions(false)}
+              className="absolute -top-2 -right-2 z-10 bg-gray-800 hover:bg-gray-900 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-lg transition-colors"
+              title="Hide suggestions"
+            >
+              ✕
+            </button>
+            <SmartSuggestions />
+            <AILearningDashboard />
+          </div>
+        )}
+
+        {/* Show suggestions button if hidden */}
+        {!showSuggestions && (
+          <button
+            onClick={() => setShowSuggestions(true)}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
+          >
+            <span>🤖</span> Show AI Suggestions
+          </button>
+        )}
+
         {/* Welcome */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
@@ -83,20 +115,26 @@ export default function UserDashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="flex gap-4">
-          <Link to="/resourceslist" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
+        <div className="flex gap-4 flex-wrap">
+          <Link to="/resourceslist" className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
             🏛️ Book a Resource
           </Link>
           <Link to="/tickets/new" className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-5 py-2.5 rounded-xl font-medium shadow-sm transition-colors">
             🎫 Report an Issue
           </Link>
+          <button 
+            onClick={() => setShowSuggestions(!showSuggestions)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-5 py-2.5 rounded-xl font-medium shadow-sm transition-all hover:shadow-md"
+          >
+            🤖 Get AI Recommendations
+          </button>
         </div>
 
         {/* Recent bookings */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-800">Recent Bookings</h2>
-            <Link to="/my-bookings" className="text-sm text-blue-600 hover:underline">View all</Link>
+            <Link to="/my-bookings" className="text-sm text-teal-600 hover:underline">View all</Link>
           </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
@@ -114,7 +152,7 @@ export default function UserDashboard() {
                   <td className="px-6 py-3 text-gray-600">{b.bookingDate}</td>
                   <td className="px-6 py-3 text-gray-600">{b.startTime} – {b.endTime}</td>
                   <td className="px-6 py-3">{statusBadge(b.status)}</td>
-                </tr>
+                 </tr>
               ))}
               {recentBookings.length === 0 && (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">No bookings yet</td></tr>
@@ -123,11 +161,11 @@ export default function UserDashboard() {
           </table>
         </div>
 
-        {/* Recent tickets */}
+        {/* Recent tickets - commented out until API ready */}
         {/* <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-800">Recent Tickets</h2>
-            <Link to="/tickets" className="text-sm text-blue-600 hover:underline">View all</Link>
+            <Link to="/tickets" className="text-sm text-teal-600 hover:underline">View all</Link>
           </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
@@ -136,7 +174,7 @@ export default function UserDashboard() {
                 <th className="px-6 py-3">Priority</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Date</th>
-              </tr>
+               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {recentTickets.map(t => (
@@ -145,7 +183,7 @@ export default function UserDashboard() {
                   <td className="px-6 py-3">{priorityBadge(t.priority)}</td>
                   <td className="px-6 py-3">{statusBadge(t.status)}</td>
                   <td className="px-6 py-3 text-gray-600">{t.createdAt?.split('T')[0]}</td>
-                </tr>
+                 </tr>
               ))}
               {recentTickets.length === 0 && (
                 <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">No tickets yet</td></tr>

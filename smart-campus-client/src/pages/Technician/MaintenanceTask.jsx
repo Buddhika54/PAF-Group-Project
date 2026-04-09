@@ -36,40 +36,43 @@ export default function MaintenanceTasks() {
 
   const completeTask = async (resourceId, note) => {
     try {
-      // First, update status to ACTIVE using your existing API
-      await resourceAPI.updateStatus(resourceId, 'ACTIVE');
-      
-      // If there's a completion note, update the maintenance note
-      if (note && note.trim()) {
-        const resource = tasks.find(t => t.id === resourceId);
-        const updatedNote = resource?.maintenanceNote 
-          ? `${resource.maintenanceNote}\n\n[COMPLETED ON ${new Date().toLocaleString()}]: ${note}`
-          : `[COMPLETED ON ${new Date().toLocaleString()}]: ${note}`;
-        
-        // Update the resource with the new maintenance note
-        // Create a FormData object for the update
-        const formData = new FormData();
-        formData.append('name', resource.name);
-        formData.append('type', resource.type);
-        formData.append('isBookable', resource.isBookable);
-        formData.append('maintenanceNote', updatedNote);
-        
-        if (resource.capacity) formData.append('capacity', resource.capacity);
-        if (resource.building) formData.append('building', resource.building);
-        if (resource.location) formData.append('location', resource.location);
-        if (resource.specialNotes) formData.append('specialNotes', resource.specialNotes);
-        
-        // Parse availability windows if exists
-        if (resource.availabilityWindows) {
-          const times = resource.availabilityWindows.split(' - ');
-          if (times.length === 2) {
-            formData.append('availabilityStart', times[0]);
-            formData.append('availabilityEnd', times[1]);
-          }
-        }
-        
-        await resourceAPI.update(resourceId, formData);
+      const resource = tasks.find(t => t.id === resourceId);
+      if (!resource) {
+        toast.error('Resource not found');
+        return;
       }
+
+      // Create completion note
+      let updatedNote = resource.maintenanceNote || '';
+      if (note && note.trim()) {
+        updatedNote = `${updatedNote}\n\n[COMPLETED ON ${new Date().toLocaleString()}]: ${note}`;
+      } else {
+        updatedNote = `${updatedNote}\n\n[COMPLETED ON ${new Date().toLocaleString()}]: Task completed`;
+      }
+      
+      // Create FormData object with all resource data including status change
+      const formData = new FormData();
+      formData.append('name', resource.name);
+      formData.append('type', resource.type);
+      formData.append('status', 'ACTIVE'); // Set status to ACTIVE
+      formData.append('isBookable', resource.isBookable);
+      formData.append('maintenanceNote', updatedNote);
+      
+      if (resource.capacity) formData.append('capacity', resource.capacity);
+      if (resource.building) formData.append('building', resource.building);
+      if (resource.location) formData.append('location', resource.location);
+      if (resource.specialNotes) formData.append('specialNotes', resource.specialNotes);
+      
+      // Parse availability windows if exists
+      if (resource.availabilityWindows) {
+        const times = resource.availabilityWindows.split(' - ');
+        if (times.length === 2) {
+          formData.append('availabilityStart', times[0]);
+          formData.append('availabilityEnd', times[1]);
+        }
+      }
+      
+      await resourceAPI.update(resourceId, formData);
       
       toast.success('Maintenance task completed successfully!');
       fetchMaintenanceTasks(); // Refresh the list
