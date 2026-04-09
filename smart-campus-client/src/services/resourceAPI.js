@@ -28,7 +28,7 @@ export const resourceAPI = {
       },
     }),
   delete: (id) => axios.delete(`${API}/${id}`, getAuthHeader()),
-  updateStatus: (id, status) =>
-    axios.patch(`${API}/${id}/status`, { status }, getAuthHeader()),
+  updateStatus: (id, payload) =>
+    axios.patch(`${API}/${id}/status`, payload, getAuthHeader()),
   getStats: () => axios.get(`${API}/stats`, getAuthHeader()), // ✅ FIXED
 };
