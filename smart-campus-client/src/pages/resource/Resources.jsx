@@ -237,9 +237,26 @@ export default function Resources() {
                     <td className="px-4 py-3.5 text-gray-500 text-xs">{r.location}</td>
 
                     <td className="px-4 py-3.5 flex gap-2">
-                      <Link to={`/admin/resources/${r.id}`} className="text-teal-600 text-xs">View</Link>
-                      <Link to={`/admin/resources/edit/${r.id}`} className="text-yellow-600 text-xs">Edit</Link>
-                      <button onClick={() => del(r.id)} className="text-red-500 text-xs">Delete</button>
+                      <Link
+                      to={`/admin/resources/${r.id}`}
+                      className="bg-teal-500 hover:bg-teal-600 text-white text-xs px-3 py-1 rounded-md"
+                    >
+                      View
+                    </Link>
+
+                    <Link
+                      to={`/admin/resources/edit/${r.id}`}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded-md"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      onClick={() => del(r.id)}
+                      className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded-md"
+                    >
+                      Delete
+                    </button>
                     </td>
                   </tr>
                 ))
