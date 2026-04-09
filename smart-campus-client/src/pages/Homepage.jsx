@@ -189,27 +189,7 @@ function HeroSection() {
       </div>
 
       {/* Floating cards preview */}
-      <div className="absolute right-8 lg:right-20 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-4">
-        {[
-          { icon: "📅", title: "Lab A101 Booked", sub: "Tomorrow, 10:00 AM", color: "bg-white/95" },
-          { icon: "✅", title: "Booking Approved", sub: "Conference Room B", color: "bg-teal-500" },
-          { icon: "🎫", title: "Ticket #045 Resolved", sub: "Projector fixed", color: "bg-white/95" },
-        ].map((card, i) => (
-          <div key={i}
-            style={{ animationDelay: `${i * 0.15}s` }}
-            className={`${card.color} rounded-2xl px-5 py-4 flex items-center gap-3 shadow-2xl backdrop-blur-md border border-white/20 min-w-[220px] animate-[slideIn_0.5s_ease_forwards]`}>
-            <span className="text-2xl">{card.icon}</span>
-            <div>
-              <p className={`text-sm font-bold ${card.color === "bg-teal-500" ? "text-white" : "text-gray-800"}`}>
-                {card.title}
-              </p>
-              <p className={`text-xs ${card.color === "bg-teal-500" ? "text-teal-100" : "text-gray-500"}`}>
-                {card.sub}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50">
@@ -525,19 +505,22 @@ function AboutSection() {
           {/* Image collage */}
           <div className="relative">
             <div className="rounded-3xl overflow-hidden shadow-2xl">
-              <img src={IMAGES.team} alt="SLIIT Team"
-                className="w-full h-80 object-cover" />
+              <img 
+                src="https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2664&q=80" 
+                alt="SLIIT Campus" 
+                className="w-full h-80 object-cover" 
+              />
             </div>
             {/* Floating info card */}
             <div className="absolute -bottom-6 -right-6 bg-teal-600 text-white rounded-2xl px-6 py-5 shadow-xl">
-              <p className="text-3xl font-black">IT3030</p>
-              <p className="text-teal-200 text-sm">PAF Assignment 2026</p>
+              <p className="text-3xl font-black">24/7</p>
+              <p className="text-teal-200 text-sm">Resource Availability</p>
             </div>
             {/* Small badge */}
             <div className="absolute top-4 left-4 bg-white rounded-xl px-4 py-3 shadow-lg">
-              <p className="text-xs font-bold text-gray-500">BUILT WITH</p>
+              <p className="text-xs font-bold text-gray-500">AVAILABLE RESOURCES</p>
               <div className="flex gap-2 mt-1">
-                {["Spring Boot", "React", "MySQL"].map(t => (
+                {["Lab Equipment", "Sports Gear", "Study Rooms", "Audio Visual"].map(t => (
                   <span key={t} className="text-xs bg-teal-50 text-teal-700 font-semibold px-2 py-0.5 rounded-md">{t}</span>
                 ))}
               </div>
@@ -547,27 +530,28 @@ function AboutSection() {
           {/* Text content */}
           <div>
             <span className="inline-block text-xs font-bold text-teal-600 uppercase tracking-widest bg-teal-50 px-4 py-2 rounded-full mb-6">
-              About the Project
+              Campus Resources
             </span>
             <h2 className="text-4xl font-black text-gray-900 mb-6">
-              Modernising campus operations at SLIIT
+              Everything you need. Right at your fingertips.
             </h2>
             <p className="text-gray-500 leading-relaxed mb-6">
-              Smart Campus Operations Hub is a production-inspired web system
-              developed as part of the IT3030 Programming Applications and
-              Frameworks module at SLIIT Faculty of Computing.
+              SLIIT offers a wide range of campus resources designed to support students, 
+              faculty, and staff in their academic and extracurricular activities. 
+              From state-of-the-art laboratories to recreational facilities, 
+              everything is just a few clicks away.
             </p>
             <p className="text-gray-500 leading-relaxed mb-8">
-              Our platform replaces manual booking sheets and scattered
-              maintenance requests with a unified digital system — giving
-              everyone from students to administrators a seamless experience.
+              Our digital platform provides a centralized hub where you can discover, 
+              book, and manage campus resources in real-time — eliminating paperwork, 
+              reducing wait times, and ensuring fair access for everyone in the SLIIT community.
             </p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { value: "5", label: "Core Modules" },
-                { value: "8+", label: "Team Members" },
-                { value: "30+", label: "API Endpoints" },
-                { value: "100%", label: "Cloud Ready" },
+                { value: "50+", label: "Resource Types" },
+                { value: "500+", label: "Active Items" },
+                { value: "4", label: "Campuses" },
+                { value: "15k+", label: "Monthly Bookings" },
               ].map(stat => (
                 <div key={stat.label} className="bg-gray-50 rounded-2xl p-5">
                   <p className="text-3xl font-black text-teal-600">{stat.value}</p>

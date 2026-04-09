@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect  } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
+import { notificationAPI } from '../../api/axiosInstance';
 
 const NAV_USER = [
     { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
     { label: 'Browse Resources', path: '/resourceslist', icon: '🏛️' },
     { label: 'My Bookings', path: '/my-bookings', icon: '📅' },
     { label: 'My Tickets', path: '/tickets', icon: '🎫' },
-    { label: 'Notifications', path: '/notifications', icon: '🔔' },
 ];
 
 const NAV_ADMIN = [
@@ -24,13 +24,15 @@ const NAV_TECHNICIAN = [
     { label: 'Assigned Tickets', path: '/technician/tickets', icon: '🎫' },
     { label: 'Maintenance Tasks', path: '/technician/maintenance-tasks', icon: '🔧' },
     { label: 'Resource Status', path: '/technician/resources', icon: '🏛️' },
-    { label: 'Notifications', path: '/notifications', icon: '🔔' },
 ];
 
 export default function Navbar({ children }) {
     const { user, logout, isAdmin, isTechnician, isStudent } = useAuth();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const [unread, setUnread] = useState(0);
+    const [showNotifPanel, setShowNotifPanel] = useState(false);
 
     // Determine which nav links to show based on role
     let navLinks = NAV_USER;
@@ -49,9 +51,8 @@ export default function Navbar({ children }) {
     useEffect(() => {
         const fetchUnread = async () => {
             try {
-                // Uncomment when notificationAPI is ready
-                // const res = await notificationAPI.getUnreadCount();
-                // setUnread(res.data.count);
+                const res = await notificationAPI.getUnreadCount();
+                setUnread(res.data.count);
             } catch { }
         };
         fetchUnread();
