@@ -1,234 +1,242 @@
-// src/pages/admin/ManageUsersDashboard.jsx
-// OR src/components/admin/ManageUsersDashboard.jsx (your choice)
-
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import Navbar from "../../components/layout/Navbar";
+
+const API_BASE_URL = 'http://localhost:8080/api/admin/users';
 
 const ManageUsersDashboard = () => {
-  // State
+  const { token } = useAuth();
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('ALL'); // ALL | ADMIN | TECHNICIAN
+  const [roleFilter, setRoleFilter] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const size = 10;
+
   const [showCreateModal, setShowCreateModal] = useState(false);
-  
-  // Form state for new user
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+
+  // CREATE USER
   const [newUser, setNewUser] = useState({
     name: '',
+    username: '',
     email: '',
     password: '',
-    role: 'TECHNICIAN' // default
+    role: 'TECHNICIAN'
   });
 
-  // Fetch all users (replace with your real API call)
-  const fetchUsers = async () => {
+  // EDIT USER (ROLE REMOVED ONLY HERE)
+  const [editUserForm, setEditUserForm] = useState({
+    name: '',
+    username: '',
+    email: ''
+  });
+
+  // FETCH USERS
+  const fetchUsers = async (page = 0) => {
     setLoading(true);
     try {
-      // TODO: Replace with your actual API endpoint
-      // Example: const res = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
-      // const data = await res.json();
-      
-      // For now, using dummy data so you can test immediately
-      const dummyUsers = [
-        {
-          id: 1,
-          name: 'John Doe',
-          email: 'john@company.com',
-          role: 'ADMIN',
-          createdAt: '2025-12-15T10:30:00Z'
-        },
-        {
-          id: 2,
-          name: 'Sarah Smith',
-          email: 'sarah@company.com',
-          role: 'TECHNICIAN',
-          createdAt: '2026-01-20T14:15:00Z'
-        },
-        {
-          id: 3,
-          name: 'Michael Chen',
-          email: 'michael@company.com',
-          role: 'TECHNICIAN',
-          createdAt: '2026-03-05T09:45:00Z'
-        },
-      ];
-      setUsers(dummyUsers);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+      });
+
+      if (searchTerm.trim()) params.append('search', searchTerm.trim());
+      if (roleFilter !== 'ALL') params.append('role', roleFilter);
+
+      const response = await fetch(`${API_BASE_URL}?${params}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      setUsers(data.content || []);
+      setTotalPages(data.totalPages || 1);
+      setCurrentPage(page);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
-      alert('Failed to load users. Check console.');
+      console.error(error);
+      alert('Failed to load users');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (token) fetchUsers(0);
+  }, [token, searchTerm, roleFilter]);
 
-  // Filter users
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = roleFilter === 'ALL' || user.role === roleFilter;
-    return matchesSearch && matchesRole;
-  });
-
-  // Handle create user
+  // CREATE USER
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    
-    if (!newUser.name || !newUser.email || !newUser.password) {
-      alert('Please fill all fields');
-      return;
-    }
 
-    try {
-      // TODO: Replace with your real API call
-      // Example:
-      // const res = await fetch('/api/admin/users', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      //   body: JSON.stringify(newUser)
-      // });
-      
-      console.log('Creating user:', newUser); // For testing
-      
-      // Simulate success
-      const newUserObj = {
-        id: Date.now(),
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        createdAt: new Date().toISOString()
-      };
-      
-      setUsers(prev => [...prev, newUserObj]);
-      alert(`User ${newUser.email} created successfully!`);
-      
-      // Reset form and close modal
-      setNewUser({ name: '', email: '', password: '', role: 'TECHNICIAN' });
+    const response = await fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newUser)
+    });
+
+    if (response.ok) {
+      alert('User created successfully');
       setShowCreateModal(false);
-    } catch (error) {
-      console.error('Create user failed:', error);
-      alert('Failed to create user');
+      fetchUsers(currentPage);
+    } else {
+      alert('Create failed');
+    }
+  };
+
+  // OPEN EDIT MODAL
+  const openEditModal = (user) => {
+    setEditingUser(user);
+    setEditUserForm({
+      name: user.name || '',
+      username: user.username || '',
+      email: user.email || ''
+    });
+    setShowEditModal(true);
+  };
+
+  // UPDATE USER
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+
+    const response = await fetch(`${API_BASE_URL}/${editingUser.id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(editUserForm)
+    });
+
+    if (response.ok) {
+      alert('User updated successfully');
+      setShowEditModal(false);
+      fetchUsers(currentPage);
+    } else {
+      alert('Update failed');
+    }
+  };
+
+  // DELETE USER
+  const deleteUser = async (userId, email) => {
+    if (!window.confirm(`Delete ${email}?`)) return;
+
+    const response = await fetch(`${API_BASE_URL}/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      fetchUsers(currentPage);
+    } else {
+      alert('Delete failed');
     }
   };
 
   return (
+    <Navbar>
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+
+      
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-8 mt-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
-          <p className="text-gray-600 mt-1">Create and manage ADMIN &amp; TECHNICIAN accounts</p>
+          <p className="text-gray-600 mt-1">
+            Create and manage ADMIN & TECHNICIAN accounts
+          </p>
         </div>
         
+
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create New User
+          + Create User
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-        {/* Search */}
-        <div className="flex-1">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500"
-            />
-            <div className="absolute left-4 top-3.5 text-gray-400">
-              🔎
-            </div>
-          </div>
-        </div>
+      {/* FILTERS */}
+      <div className="flex gap-4 mb-6 bg-white p-5 rounded-2xl shadow border">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-4 py-3 border rounded-xl"
+        />
 
-        {/* Role Filter */}
-        <div className="w-full md:w-64">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 bg-white"
-          >
-            <option value="ALL">All Roles</option>
-            <option value="ADMIN">Admin Only</option>
-            <option value="TECHNICIAN">Technician Only</option>
-          </select>
-        </div>
-
-        {/* Refresh button */}
-        <button
-          onClick={fetchUsers}
-          className="px-6 py-3 border border-gray-300 hover:bg-gray-50 rounded-xl flex items-center gap-2 text-gray-700 font-medium"
+        <select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          className="px-4 py-3 border rounded-xl"
         >
-          <span>↻</span>
+          <option value="ALL">All Roles</option>
+          <option value="ADMIN">ADMIN</option>
+          <option value="TECHNICIAN">TECHNICIAN</option>
+        </select>
+
+        <button
+          onClick={() => fetchUsers(0)}
+          className="px-6 py-3 border rounded-xl hover:bg-gray-50"
+        >
           Refresh
         </button>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* TABLE */}
+      <div className="bg-white rounded-3xl shadow border overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-gray-500">Loading users...</div>
+          <div className="p-10 text-center">Loading...</div>
         ) : (
           <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">NAME</th>
-                <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">EMAIL</th>
-                <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">ROLE</th>
-                <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600">CREATED</th>
-                <th className="px-6 py-5 text-center text-sm font-semibold text-gray-600">ACTIONS</th>
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">Username</th>
+                <th className="p-4 text-left">Email</th>
+                <th className="p-4 text-left">Role</th>
+                <th className="p-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredUsers.length === 0 ? (
+
+            <tbody>
+              {users.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
-                    No users found matching your filters.
+                  <td colSpan="5" className="p-10 text-center text-gray-500">
+                    No users found
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-5 font-medium">{user.name}</td>
-                    <td className="px-6 py-5 text-gray-600">{user.email}</td>
-                    <td className="px-6 py-5">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                          user.role === 'ADMIN'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-gray-600 text-sm">
-                      {new Date(user.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </td>
-                    <td className="px-6 py-5 text-center">
+                users.map((user) => (
+                  <tr key={user.id} className="border-t hover:bg-gray-50">
+                    <td className="p-4">{user.name}</td>
+                    <td className="p-4">{user.username}</td>
+                    <td className="p-4">{user.email}</td>
+                    <td className="p-4">{user.role}</td>
+
+                    <td className="p-4 text-center space-x-3">
                       <button
-                        className="text-red-600 hover:text-red-700 text-sm font-medium"
-                        onClick={() => {
-                          if (confirm(`Delete user ${user.email}?`)) {
-                            setUsers(prev => prev.filter(u => u.id !== user.id));
-                          }
-                        }}
+                        onClick={() => openEditModal(user)}
+                        className="text-blue-600 font-medium"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => deleteUser(user.id, user.email)}
+                        className="text-red-600 font-medium"
                       >
                         Delete
                       </button>
@@ -241,85 +249,165 @@ const ManageUsersDashboard = () => {
         )}
       </div>
 
-      {/* Create User Modal */}
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-2 mt-6">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => fetchUsers(i)}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === i
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
+      {/* CREATE MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl w-full max-w-md mx-4 shadow-2xl">
-            <div className="px-8 pt-8 pb-6">
-              <h2 className="text-2xl font-semibold mb-6">Create New User</h2>
-              
-              <form onSubmit={handleCreateUser}>
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input
-                      type="text"
-                      value={newUser.name}
-                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500"
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-3xl w-[420px]">
+            <h2 className="text-xl font-bold mb-4">Create User</h2>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={newUser.email}
-                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500"
-                      placeholder="user@company.com"
-                      required
-                    />
-                  </div>
+            <form onSubmit={handleCreateUser} className="space-y-4">
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                      type="password"
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </div>
+              <input
+                className="w-full border p-3 rounded-xl"
+                placeholder="Name"
+                value={newUser.name}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, name: e.target.value })
+                }
+                required
+              />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select
-                      value={newUser.role}
-                      onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-blue-500 bg-white"
-                    >
-                      <option value="TECHNICIAN">TECHNICIAN</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
-                  </div>
-                </div>
+              <input
+                className="w-full border p-3 rounded-xl"
+                placeholder="Username"
+                value={newUser.username}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, username: e.target.value })
+                }
+                required
+              />
 
-                <div className="flex gap-3 mt-10">
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateModal(false)}
-                    className="flex-1 py-4 text-gray-700 font-medium border border-gray-300 rounded-2xl hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-2xl"
-                  >
-                    Create User
-                  </button>
-                </div>
-              </form>
-            </div>
+              <input
+                className="w-full border p-3 rounded-xl"
+                placeholder="Email"
+                value={newUser.email}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, email: e.target.value })
+                }
+                required
+              />
+
+              <input
+                type="password"
+                className="w-full border p-3 rounded-xl"
+                placeholder="Password"
+                value={newUser.password}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, password: e.target.value })
+                }
+                required
+              />
+
+              <select
+                className="w-full border p-3 rounded-xl"
+                value={newUser.role}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, role: e.target.value })
+                }
+              >
+                <option value="TECHNICIAN">TECHNICIAN</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 border p-3 rounded-xl"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white p-3 rounded-xl"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
+      {/* EDIT MODAL (ROLE REMOVED ONLY HERE) */}
+      {showEditModal && editingUser && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-3xl w-[420px]">
+            <h2 className="text-xl font-bold mb-4">Edit User</h2>
+
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+
+              <input
+                className="w-full border p-3 rounded-xl"
+                value={editUserForm.name}
+                onChange={(e) =>
+                  setEditUserForm({ ...editUserForm, name: e.target.value })
+                }
+                required
+              />
+
+              <input
+                className="w-full border p-3 rounded-xl"
+                value={editUserForm.username}
+                onChange={(e) =>
+                  setEditUserForm({ ...editUserForm, username: e.target.value })
+                }
+                required
+              />
+
+              <input
+                className="w-full border p-3 rounded-xl"
+                value={editUserForm.email}
+                onChange={(e) =>
+                  setEditUserForm({ ...editUserForm, email: e.target.value })
+                }
+                required
+              />
+
+              {/* ROLE REMOVED FROM EDIT ONLY */}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 border p-3 rounded-xl"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white p-3 rounded-xl"
+                >
+                  Update
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
+    </Navbar>
   );
 };
 
