@@ -1,5 +1,7 @@
 package com.smartcampus.smart_campus.dto;
  
+import java.time.LocalDateTime;
+
 import com.smartcampus.smart_campus.model.User;
  
 public class UserResponse {
@@ -8,6 +10,7 @@ public class UserResponse {
     private String username;
     private String name;
     private String role;
+    private boolean isActive;
  
     // Constructor from User entity
     public UserResponse(User user) {
@@ -16,6 +19,7 @@ public class UserResponse {
         this.username = user.getUsername();
         this.name = user.getName();
         this.role = user.getRole().toString();
+        this.isActive = user.isActive();
     }
  
     // Getters and Setters
@@ -58,4 +62,11 @@ public class UserResponse {
     public void setRole(String role) {
         this.role = role;
     }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    
+
 }
