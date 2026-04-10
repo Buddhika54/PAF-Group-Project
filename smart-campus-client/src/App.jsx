@@ -20,7 +20,19 @@ import ResourceList from './pages/resource/ResourceList';
 import { Navigate } from 'react-router-dom';
 import TechnicianResources from './pages/Technician/TechnicianResource';
 import AdminBookings from './pages/admin/AdminBookings';
+import AdminNotifications from './pages/admin/AdminNotifications';
 import MaintenanceTasks from './pages/Technician/MaintenanceTask';
+import Tickets from './pages/user/Tickets';
+import NewTicket from './pages/user/NewTicket';
+import TicketDetail from './pages/user/TicketDetail';
+
+import AdminTickets from './pages/admin/AdminTickets';
+import TechTickets from './pages/Technician/TechTickets';
+import TechTicketDetail from './pages/Technician/TechTicketDetail';
+import TechNewTicket from './pages/Technician/TechNewTicket';
+import ManageUsersDashboard from './pages/admin/ManageUsersDashboard';
+
+
 
 function App() {
   return (
@@ -95,7 +107,14 @@ function App() {
           {/* ── Admin Routes ───────────────────────────── */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
-          <Route path="/admin/tickets" element={<div>Admin Tickets</div>} />
+          <Route path="/admin/tickets" element={
+            <PrivateRoute><AdminTickets /></PrivateRoute>
+          } />
+
+          <Route path="/admin/manage-users" element={
+            <ManageUsersDashboard />
+          } />
+
           
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
           <Route path="/admin/users" element={<div>Admin Users</div>} />
@@ -105,9 +124,10 @@ function App() {
         <Route path="/admin/resources/add" element={<AddResource />} />
         <Route path="/admin/resources/edit/:id" element={<EditResource />} />
         <Route path="/admin/resources/:id" element={<ResourceDetails />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
 
           {/* ── User Dashboard ─────────────────────────── */}
-          <Route path="/dashboard" element={<div>User Dashboard</div>} />
+          
 
           {/* ── Technician Dashboard ───────────────────── */}
           <Route path="/technician/dashboard" element={<TechnicianResources />} />
@@ -119,13 +139,32 @@ function App() {
           <Route path="/resources/:id" element={<div>Resource Detail</div>} />
 
           {/* ── Member 2 — Bookings ────────────────────── */}
-          <Route path="/bookings" element={<div>Bookings</div>} />
-          <Route path="/my-bookings" element={<div>My Bookings</div>} />
+         
 
           {/* ── Member 3 — Tickets ─────────────────────── */}
-          <Route path="/tickets" element={<div>Tickets</div>} />
-          <Route path="/tickets/:id" element={<div>Ticket Detail</div>} />
+          {/* ── Tickets (USER) ─────────────────────── */}
+          <Route path="/tickets" element={
+            <PrivateRoute><Tickets /></PrivateRoute>
+          } />
 
+          <Route path="/tickets/new" element={
+            <PrivateRoute><NewTicket /></PrivateRoute>
+          } />
+
+          <Route path="/tickets/:id" element={
+            <PrivateRoute><TicketDetail /></PrivateRoute>
+          } />
+<Route path="/technician/tickets" element={
+  <PrivateRoute><TechTickets /></PrivateRoute>
+} />
+
+<Route path="/technician/tickets/new" element={
+  <PrivateRoute><TechNewTicket /></PrivateRoute>
+} />
+
+<Route path="/technician/tickets/:id" element={
+  <PrivateRoute><TechTicketDetail /></PrivateRoute>
+} />
           {/* ── 404 Fallback ───────────────────────────── 
           <Route path="*" element={<Navigate to="/login" replace />} />*/}
 

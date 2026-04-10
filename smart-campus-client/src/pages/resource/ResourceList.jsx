@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { resourceAPI } from '../../services/resourceAPI';
+import { resourceAPI } from '../../services/resourceAPI';  // ← ADD bookingAPI import
+import { bookingAPI } from '../../api/axiosInstance'; // ← ADD bookingAPI import
 import { toast } from 'react-hot-toast';
 import Navbar from '../../components/layout/Navbar';
 
@@ -26,6 +27,7 @@ export default function BrowseResources() {
   const [selectedType, setSelectedType] = useState('ALL');
   const [selectedResource, setSelectedResource] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [bookingData, setBookingData] = useState({
     date: '',
     startTime: '',
@@ -41,12 +43,25 @@ export default function BrowseResources() {
     try {
       setLoading(true);
       const res = await resourceAPI.getAll();
-      // Filter only active and bookable resources
-      const activeResources = res.data.filter(
+      // Handle both direct resources and nested resources (from bookings response)
+      let resourcesData = res.data;
+      if (resourcesData.length > 0 && resourcesData[0]?.resource) {
+        // Extract unique resources from bookings
+        const uniqueResources = new Map();
+        resourcesData.forEach(item => {
+          if (item.resource && !uniqueResources.has(item.resource.id)) {
+            uniqueResources.set(item.resource.id, item.resource);
+          }
+        });
+        resourcesData = Array.from(uniqueResources.values());
+      }
+      
+      const activeResources = resourcesData.filter(
         r => r.status === 'ACTIVE' && r.isBookable === true
       );
       setResources(activeResources);
     } catch (err) {
+      console.error('Error loading resources:', err);
       toast.error('Failed to load resources');
     } finally {
       setLoading(false);
@@ -66,25 +81,45 @@ export default function BrowseResources() {
       return;
     }
 
+    setSubmitting(true);
+    
     try {
-      // Here you would call your booking API
-      // await bookingAPI.create({
-      //   resourceId: selectedResource.id,
-      //   ...bookingData
-      // });
+      // Prepare the booking payload
+      const payload = {
+        resourceId: selectedResource.id,
+        bookingDate: bookingData.date,
+        startTime: bookingData.startTime,
+        endTime: bookingData.endTime,
+        purpose: bookingData.purpose || null
+      };
+      
+      console.log('Submitting booking:', payload);
+      
+      // Call the booking API
+      const response = await bookingAPI.create(payload);
+      
+      console.log('Booking response:', response.data);
       
       toast.success(`Successfully booked ${selectedResource.name}!`);
+      
+      // Reset form and close modal
       setShowBookingModal(false);
       setBookingData({ date: '', startTime: '', endTime: '', purpose: '' });
-      // Refresh resources list
+      
+      // Refresh resources to update availability
       fetchActiveResources();
+      
     } catch (err) {
-      toast.error('Failed to book resource');
+      console.error('Booking error:', err);
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to book resource';
+      toast.error(errorMessage);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = resource.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedType === 'ALL' || resource.type === selectedType;
     return matchesSearch && matchesType;
   });
@@ -111,7 +146,6 @@ export default function BrowseResources() {
         {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
             <div className="flex-1">
               <input
                 type="text"
@@ -122,7 +156,6 @@ export default function BrowseResources() {
               />
             </div>
             
-            {/* Type Filter */}
             <div className="md:w-64">
               <select
                 value={selectedType}
@@ -156,21 +189,22 @@ export default function BrowseResources() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResources.map((resource) => (
-              <div key={resource.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+              <div key={resource.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
                 {/* Image or Placeholder */}
                 {resource.type === 'EQUIPMENT' && resource.imageUrl ? (
                   <img 
                     src={resource.imageUrl} 
                     alt={resource.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-full h-48 bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
+                  <div className="w-full h-48 bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center flex-shrink-0">
                     <span className="text-6xl">{typeIcons[resource.type]}</span>
                   </div>
                 )}
                 
-                <div className="p-5">
+                {/* Content Area */}
+                <div className="p-5 flex flex-col flex-grow">
                   {/* Type Badge */}
                   <div className="mb-3">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
@@ -184,7 +218,7 @@ export default function BrowseResources() {
                   </h3>
                   
                   {/* Details */}
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-4 flex-grow">
                     {resource.type !== 'EQUIPMENT' && (
                       <>
                         {resource.capacity && (
@@ -205,13 +239,6 @@ export default function BrowseResources() {
                       </>
                     )}
                     
-                    {/* Availability */}
-                    {resource.availabilityWindows && (
-                      <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <span className="text-gray-400">⏰</span> {resource.availabilityWindows}
-                      </p>
-                    )}
-                    
                     {/* Status */}
                     <p className="text-sm flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
@@ -222,7 +249,7 @@ export default function BrowseResources() {
                   {/* Book Button */}
                   <button
                     onClick={() => handleBookNow(resource)}
-                    className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors"
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors mt-auto"
                   >
                     Book Now
                   </button>
@@ -238,7 +265,6 @@ export default function BrowseResources() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              {/* Modal Header */}
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold text-gray-800">Book Resource</h2>
                 <button
@@ -249,14 +275,12 @@ export default function BrowseResources() {
                 </button>
               </div>
               
-              {/* Resource Info */}
               <div className="bg-teal-50 rounded-lg p-4 mb-6">
                 <p className="text-sm text-teal-600 font-medium">Selected Resource</p>
                 <p className="text-lg font-semibold text-gray-800">{selectedResource.name}</p>
                 <p className="text-sm text-gray-600">{typeLabel[selectedResource.type]}</p>
               </div>
               
-              {/* Booking Form */}
               <form onSubmit={handleBookingSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -323,9 +347,10 @@ export default function BrowseResources() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors"
+                    disabled={submitting}
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white py-2 rounded-lg font-medium transition-colors"
                   >
-                    Confirm Booking
+                    {submitting ? 'Booking...' : 'Confirm Booking'}
                   </button>
                 </div>
               </form>

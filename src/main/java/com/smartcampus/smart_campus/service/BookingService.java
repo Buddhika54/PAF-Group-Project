@@ -38,7 +38,9 @@ public class BookingService {
         booking.setUser(user);
         booking.setResource(resource);
         booking.setStatus(Booking.BookingStatus.PENDING);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.notifyAdminsBookingCreated(saved);
+        return saved;
     }
 
     // ── Get user's bookings ──────────────────────
