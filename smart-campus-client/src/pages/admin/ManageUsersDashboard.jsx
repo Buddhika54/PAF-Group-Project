@@ -28,11 +28,13 @@ const ManageUsersDashboard = () => {
     role: 'TECHNICIAN'
   });
 
-  // EDIT USER (ROLE REMOVED ONLY HERE)
+  // EDIT USER 
   const [editUserForm, setEditUserForm] = useState({
     name: '',
     username: '',
-    email: ''
+    email: '',
+    role: 'USER || ADMIN || TECHNICIAN',
+    isActive: true
   });
 
   // FETCH USERS
@@ -98,7 +100,9 @@ const ManageUsersDashboard = () => {
     setEditUserForm({
       name: user.name || '',
       username: user.username || '',
-      email: user.email || ''
+      email: user.email || '',
+      role: user.role || 'USER',
+      isActive: user.isActive !== false
     });
     setShowEditModal(true);
   };
