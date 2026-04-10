@@ -38,6 +38,9 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody RegisterRequest request,
@@ -86,7 +89,20 @@ public class AuthController {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
         }
-        User user = (User) auth.getPrincipal();
+        
+        // Handle both JWT users (User principal) and OAuth users (OAuth2User principal)
+        Object principal = auth.getPrincipal();
+        User user;
+        
+        if (principal instanceof User) {
+            user = (User) principal; // JWT login
+        } else {
+            // OAuth2 login - find user by email
+            String email = auth.getName();
+            user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        }
+        
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "email", user.getEmail(),

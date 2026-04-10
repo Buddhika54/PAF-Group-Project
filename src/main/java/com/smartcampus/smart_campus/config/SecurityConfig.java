@@ -86,11 +86,11 @@ public class SecurityConfig {
                     "/api/bookings/**"
                 ).permitAll()
 
-                // Module C — anyone can READ tickets
+                // Module C - public ticket endpoints (without authentication)
                 .requestMatchers(
                     HttpMethod.GET,
-                    "/api/tickets",
-                    "/api/tickets/**"
+                    "/api/tickets/public",
+                    "/api/tickets/public/**"
                 ).permitAll()
 
                 // Module D — anyone can READ notifications
