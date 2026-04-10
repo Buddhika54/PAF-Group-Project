@@ -15,6 +15,9 @@ public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private com.smartcampus.smart_campus.repository.UserRepository userRepository;
+
     private void create(User user, Notification.NotificationType type, String title, String message,
                         Booking booking, Ticket ticket) {
         Notification n = new Notification();
@@ -33,6 +36,27 @@ public class NotificationService {
                 "Your booking for " + booking.getResource().getName() + " on " +
                 booking.getBookingDate() + " has been approved.",
                 booking, null);
+    }
+
+    public void notifyAdminsBookingCreated(Booking booking) {
+        List<User> admins = userRepository.findByRole(User.Role.ADMIN);
+        for (User admin : admins) {
+            create(admin, Notification.NotificationType.BOOKING_CREATED,
+                    "New Booking Request",
+                    "User " + booking.getUser().getName() + " requested to book " + 
+                    booking.getResource().getName() + " for " + booking.getBookingDate(),
+                    booking, null);
+        }
+    }
+
+    public void notifyAllUsersResourceAdded(CampusResource resource) {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+             create(user, Notification.NotificationType.RESOURCE_ADDED,
+                    "New Resource Added! 🎉",
+                    "A new resource '" + resource.getName() + "' of type " + resource.getType() + " is now available in " + resource.getLocation() + ".",
+                    null, null);
+        }
     }
 
     public void notifyBookingRejected(Booking booking) {

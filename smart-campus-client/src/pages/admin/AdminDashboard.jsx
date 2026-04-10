@@ -235,7 +235,9 @@ export default function AdminDashboard() {
                   <td>{priorityBadge(t.priority)}</td>
                   <td>{t.resource?.name}</td>
                   <td>
-                    <button
+                    <div className="flex gap-2">
+                    <button 
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors"
                       onClick={() => {
                         setStatusModal(t);
                         setNewStatus(t.status || 'OPEN');
@@ -245,9 +247,12 @@ export default function AdminDashboard() {
                       Update
                     </button>
 
-                    <button onClick={() => navigate('/admin/tickets')}>
+                    <button onClick={() => navigate('/admin/tickets')}
+                      className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-medium transition-colors"
+>
                       View
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))}

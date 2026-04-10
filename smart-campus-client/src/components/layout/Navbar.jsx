@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect  } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import NotificationDropdown from './NotificationDropdown';
+import { notificationAPI } from '../../api/axiosInstance';
 
 const NAV_USER = [
     { label: 'Dashboard', path: '/dashboard', icon: '🏠' },
     { label: 'Browse Resources', path: '/resourceslist', icon: '🏛️' },
     { label: 'My Bookings', path: '/my-bookings', icon: '📅' },
     { label: 'My Tickets', path: '/tickets', icon: '🎫' },
-    { label: 'Notifications', path: '/notifications', icon: '🔔' },
 ];
 
 const NAV_ADMIN = [
@@ -15,7 +16,8 @@ const NAV_ADMIN = [
     { label: 'Manage Resources', path: '/admin/resources', icon: '🏛️' },
     { label: 'Manage Bookings', path: '/admin/bookings', icon: '📅' },
     { label: 'Manage Tickets', path: '/admin/tickets', icon: '🎫' },
-    { label: 'Notifications', path: '/notifications', icon: '🔔' },
+    { label: 'Notifications', path: '/admin/notifications', icon: '🔔' },
+    { label: 'Manage Users', path: '/admin/manage-users', icon: '👥' },
 ];
 
 const NAV_TECHNICIAN = [
@@ -23,15 +25,15 @@ const NAV_TECHNICIAN = [
     { label: 'Assigned Tickets', path: '/technician/tickets', icon: '🎫' },
     { label: 'Maintenance Tasks', path: '/technician/maintenance-tasks', icon: '🔧' },
     { label: 'Resource Status', path: '/technician/resources', icon: '🏛️' },
-    { label: 'Notifications', path: '/notifications', icon: '🔔' },
 ];
 
 export default function Navbar({ children }) {
     const { user, logout, isAdmin, isTechnician, isStudent } = useAuth();
     const location = useLocation();
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
     const [unread, setUnread] = useState(0);
     const [showNotifPanel, setShowNotifPanel] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     // Determine which nav links to show based on role
     let navLinks = NAV_USER;
@@ -50,9 +52,8 @@ export default function Navbar({ children }) {
     useEffect(() => {
         const fetchUnread = async () => {
             try {
-                // Uncomment when notificationAPI is ready
-                // const res = await notificationAPI.getUnreadCount();
-                // setUnread(res.data.count);
+                const res = await notificationAPI.getUnreadCount();
+                setUnread(res.data.count);
             } catch { }
         };
         fetchUnread();
@@ -87,8 +88,7 @@ export default function Navbar({ children }) {
                         const active = location.pathname === link.path;
                         return (
                             <Link key={link.path} to={link.path}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${active ? 'bg-slate-900 text-white' : 'text-white hover:bg-slate-800 hover:text-white'
-                                    }`}>
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${active ? 'bg-slate-900 text-white' : 'text-white hover:bg-slate-800 hover:text-white'}`}>
                                 <span className="text-lg flex-shrink-0">{link.icon}</span>
                                 {sidebarOpen && <span className="text-sm font-medium whitespace-nowrap">{link.label}</span>}
                             </Link>
@@ -126,6 +126,7 @@ export default function Navbar({ children }) {
 
                     <div className="flex items-center gap-4">
                         {/* Notification bell */}
+                        <NotificationDropdown />
                         <div className="relative">
                             <button onClick={() => setShowNotifPanel(!showNotifPanel)}
                                 className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">

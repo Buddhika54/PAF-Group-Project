@@ -155,10 +155,21 @@ public class TicketService {
         );
     }
 
+    public void deleteTicket(Long ticketId, User user) {
+        Ticket ticket = getById(ticketId);
+        
+        // Check if user has permission to delete (admin or ticket creator)
+        if (!user.getRole().equals(User.Role.ADMIN) && 
+            !ticket.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException("Not authorized to delete this ticket");
+        }
+        
+        ticketRepository.delete(ticket);
+    }
+
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
 
     public void deleteById(Long id) {
     ticketRepository.deleteById(id);

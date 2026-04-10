@@ -5,10 +5,14 @@ import com.smartcampus.smart_campus.model.User;
 import com.smartcampus.smart_campus.repository.UserRepository;
 import com.smartcampus.smart_campus.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class UserService {
@@ -88,6 +92,90 @@ public class UserService {
     }
 
     
+     // ====================== ADMIN ONLY METHODS ======================
 
-    
+    @PreAuthorize("hasRole('ADMIN')")
+@Transactional
+public UserResponse createAdminUser(AdminUserCreateRequest request) {
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new IllegalArgumentException("Email already exists");
+    }
+    if (userRepository.existsByUsername(request.getUsername())) {
+        throw new IllegalArgumentException("Username already exists");
+    }
+
+    User user = new User();
+    user.setName(request.getName());
+    user.setUsername(request.getUsername());
+    user.setEmail(request.getEmail());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+    // FIX: safe role handling
+    if (request.getRole() != null) {
+        user.setRole(request.getRole());
+    } else {
+        user.setRole(User.Role.TECHNICIAN);
+    }
+
+    user.setIsActive(true);
+
+    User saved = userRepository.save(user);
+    return new UserResponse(saved);
+}
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserResponse> getAllUsers(String search, User.Role roleFilter, Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            String term = search.trim();
+            return userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrUsernameContainingIgnoreCase(
+                    term, term, term, pageable)
+                    .map(UserResponse::new);
+        }
+
+        if (roleFilter != null) {
+            return userRepository.findByRole(roleFilter, pageable).map(UserResponse::new);
+        }
+
+        return userRepository.findAll(pageable).map(UserResponse::new);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public UserResponse updateUser(Long id, AdminUserUpdateRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+
+        user.setName(request.getName());
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        
+        if (request.getRole() != null) {
+            user.setRole((User.Role) request.getRole());
+        }
+        if (request.getIsActive()) {
+            user.setIsActive(request.getIsActive());
+        }
+
+        User saved = userRepository.save(user);
+        return new UserResponse(saved);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void toggleUserStatus(Long id, boolean active) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+        
+        user.setIsActive(active);
+        userRepository.save(user);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("User not found with id: " + id);
+        }
+        userRepository.deleteById(id);
+    }
 }

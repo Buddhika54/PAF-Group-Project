@@ -68,4 +68,21 @@ export const resourceAPI = {
   cancel: (id) => api.put(`/bookings/${id}/cancel`),
 };
 
+//_____Notification_____
+export const notificationAPI = {
+    getMyNotifications: () => api.get('/notifications'),
+    getUnreadCount:     () => api.get('/notifications/unread-count'),
+    markAsRead:         (id) => api.put(`/notifications/${id}/read`),
+    markAllAsRead:      () => api.put('/notifications/read-all'),
+}
+
+//_____System Notifications (Admin Broadcasts)_____
+export const systemNotificationAPI = {
+    getAll:   ()         => api.get('/system-notifications'),
+    getOne:   (id)       => api.get(`/system-notifications/${id}`),
+    create:   (data)     => api.post('/system-notifications', data),
+    update:   (id, data) => api.put(`/system-notifications/${id}`, data),
+    delete:   (id)       => api.delete(`/system-notifications/${id}`),
+}
+
 export default api;
