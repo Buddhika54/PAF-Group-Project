@@ -142,7 +142,7 @@ function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-semibold px-4 py-2 rounded-full mb-6 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse" />
-            SLIIT Faculty of Computing — 2026
+            SLIIT Faculty of Computing
           </div>
 
           <h1 className="text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
