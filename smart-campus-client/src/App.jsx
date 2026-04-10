@@ -27,6 +27,7 @@ import NewTicket from './pages/user/NewTicket';
 import TicketDetail from './pages/user/TicketDetail';
 
 import AdminTickets from './pages/admin/AdminTickets';
+import ManageUsersDashboard from './pages/admin/ManageUsersDashboard';
 
 
 
@@ -104,8 +105,13 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/bookings" element={<AdminBookings />} />
           <Route path="/admin/tickets" element={
-  <PrivateRoute><AdminTickets /></PrivateRoute>
-} />
+            <PrivateRoute><AdminTickets /></PrivateRoute>
+          } />
+
+          <Route path="/admin/manage-users" element={
+            <ManageUsersDashboard />
+          } />
+
           
           <Route path="/admin/registrations" element={<div>Admin Registrations</div>} />
           <Route path="/admin/users" element={<div>Admin Users</div>} />

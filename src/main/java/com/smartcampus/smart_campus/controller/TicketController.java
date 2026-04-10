@@ -28,7 +28,17 @@ public class TicketController {
     @Autowired
     private UserRepository userRepository;
 
-    
+    // ✅ Helper: works for both JWT login and OAuth2 login
+    private User extractUser(Authentication auth) {
+        Object principal = auth.getPrincipal();
+        if (principal instanceof User) {
+            return (User) principal; // JWT login
+        }
+        // OAuth2 login — email is stored in principal name
+        String email = auth.getName();
+        return ticketService.findUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+    }
 
     // ✅ Get default/system user for public submissions
     private User getDefaultUser() {
@@ -229,13 +239,15 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTicket(@PathVariable Long id, Authentication auth) {
-        User user = (User) auth.getPrincipal();
-        ticketService.deleteTicket(id, user);
-        return ResponseEntity.noContent().build();
-    }
+    // 🔒 ADMIN ONLY — Delete ticket
+@PreAuthorize("hasRole('ADMIN')")
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
+    ticketService.deleteById(id);
+    return ResponseEntity.noContent().build();
+}
 
+    // 🔒 AUTHENTICATED — Upload attachment
     @PostMapping("/{id}/attachments")
     public ResponseEntity<TicketAttachment> uploadAttachment(@PathVariable Long id,
                                                               @RequestParam("file") MultipartFile file,

@@ -17,6 +17,7 @@ const NAV_ADMIN = [
     { label: 'Manage Bookings', path: '/admin/bookings', icon: '📅' },
     { label: 'Manage Tickets', path: '/admin/tickets', icon: '🎫' },
     { label: 'Notifications', path: '/admin/notifications', icon: '🔔' },
+    { label: 'Manage Users', path: '/admin/manage-users', icon: '👥' },
 ];
 
 const NAV_TECHNICIAN = [
