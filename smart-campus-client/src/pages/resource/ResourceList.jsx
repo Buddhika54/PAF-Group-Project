@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { resourceAPI } from '../../services/resourceAPI';
+import { resourceAPI } from '../../services/resourceAPI';  // ← ADD bookingAPI import
+import { bookingAPI } from '../../api/axiosInstance'; // ← ADD bookingAPI import
 import { toast } from 'react-hot-toast';
 import Navbar from '../../components/layout/Navbar';
 
@@ -26,6 +27,7 @@ export default function BrowseResources() {
   const [selectedType, setSelectedType] = useState('ALL');
   const [selectedResource, setSelectedResource] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [bookingData, setBookingData] = useState({
     date: '',
     startTime: '',
@@ -41,11 +43,25 @@ export default function BrowseResources() {
     try {
       setLoading(true);
       const res = await resourceAPI.getAll();
-      const activeResources = res.data.filter(
+      // Handle both direct resources and nested resources (from bookings response)
+      let resourcesData = res.data;
+      if (resourcesData.length > 0 && resourcesData[0]?.resource) {
+        // Extract unique resources from bookings
+        const uniqueResources = new Map();
+        resourcesData.forEach(item => {
+          if (item.resource && !uniqueResources.has(item.resource.id)) {
+            uniqueResources.set(item.resource.id, item.resource);
+          }
+        });
+        resourcesData = Array.from(uniqueResources.values());
+      }
+      
+      const activeResources = resourcesData.filter(
         r => r.status === 'ACTIVE' && r.isBookable === true
       );
       setResources(activeResources);
     } catch (err) {
+      console.error('Error loading resources:', err);
       toast.error('Failed to load resources');
     } finally {
       setLoading(false);
@@ -65,18 +81,45 @@ export default function BrowseResources() {
       return;
     }
 
+    setSubmitting(true);
+    
     try {
+      // Prepare the booking payload
+      const payload = {
+        resourceId: selectedResource.id,
+        bookingDate: bookingData.date,
+        startTime: bookingData.startTime,
+        endTime: bookingData.endTime,
+        purpose: bookingData.purpose || null
+      };
+      
+      console.log('Submitting booking:', payload);
+      
+      // Call the booking API
+      const response = await bookingAPI.create(payload);
+      
+      console.log('Booking response:', response.data);
+      
       toast.success(`Successfully booked ${selectedResource.name}!`);
+      
+      // Reset form and close modal
       setShowBookingModal(false);
       setBookingData({ date: '', startTime: '', endTime: '', purpose: '' });
+      
+      // Refresh resources to update availability
       fetchActiveResources();
+      
     } catch (err) {
-      toast.error('Failed to book resource');
+      console.error('Booking error:', err);
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to book resource';
+      toast.error(errorMessage);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = resource.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedType === 'ALL' || resource.type === selectedType;
     return matchesSearch && matchesType;
   });
@@ -160,7 +203,7 @@ export default function BrowseResources() {
                   </div>
                 )}
                 
-                {/* Content Area - grows to fill space */}
+                {/* Content Area */}
                 <div className="p-5 flex flex-col flex-grow">
                   {/* Type Badge */}
                   <div className="mb-3">
@@ -174,7 +217,7 @@ export default function BrowseResources() {
                     {resource.name}
                   </h3>
                   
-                  {/* Details - takes remaining space */}
+                  {/* Details */}
                   <div className="space-y-2 mb-4 flex-grow">
                     {resource.type !== 'EQUIPMENT' && (
                       <>
@@ -196,13 +239,6 @@ export default function BrowseResources() {
                       </>
                     )}
                     
-                    {/* Availability */}
-                    {resource.availabilityWindows && (
-                      <p className="text-sm text-gray-600 flex items-center gap-2">
-                        <span className="text-gray-400">⏰</span> {resource.availabilityWindows}
-                      </p>
-                    )}
-                    
                     {/* Status */}
                     <p className="text-sm flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
@@ -210,7 +246,7 @@ export default function BrowseResources() {
                     </p>
                   </div>
                   
-                  {/* Book Button - always at bottom */}
+                  {/* Book Button */}
                   <button
                     onClick={() => handleBookNow(resource)}
                     className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors mt-auto"
@@ -311,9 +347,10 @@ export default function BrowseResources() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-medium transition-colors"
+                    disabled={submitting}
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white py-2 rounded-lg font-medium transition-colors"
                   >
-                    Confirm Booking
+                    {submitting ? 'Booking...' : 'Confirm Booking'}
                   </button>
                 </div>
               </form>

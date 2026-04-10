@@ -558,7 +558,7 @@ export default function SmartSuggestions() {
                   className="bg-white text-purple-600 px-3 py-1.5 rounded-lg text-sm font-medium 
                            hover:bg-purple-50 transition-all transform hover:scale-105 ml-3"
                 >
-                  Book Now →
+                  👍 Yes
                 </button>
                 <button
                     onClick={(e) => {

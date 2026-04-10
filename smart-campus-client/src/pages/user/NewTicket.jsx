@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { resourceAPI, ticketAPI } from "../../api/axiosInstance";
+import {ticketAPI } from "../../api/axiosInstance";
+import { resourceAPI } from "../../services/resourceAPI";
 import { toast } from 'react-hot-toast';
 import Navbar from "../../components/layout/Navbar";
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +11,7 @@ const PRIORITIES = ['LOW','MEDIUM','HIGH','CRITICAL'];
 
 export default function NewTicket() {
   const [resources, setResources] = useState([]);
+  const [loadingResources, setLoadingResources] = useState(true);
   const [form, setForm] = useState({ 
     title: '', 
     resourceId: '', 
@@ -21,7 +23,7 @@ export default function NewTicket() {
   const [files, setFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
 
   // Check authentication on mount
   useEffect(() => {
@@ -31,11 +33,37 @@ export default function NewTicket() {
       return;
     }
     
-    // Load resources
-    resourceAPI.getAll()
-      .then(r => setResources(r.data))
-      .catch(err => console.error('Error loading resources:', err));
+    loadResources();
   }, [isAuthenticated, token, navigate]);
+
+  const loadResources = async () => {
+    setLoadingResources(true);
+    try {
+      console.log('Fetching resources with token:', token);
+      const response = await resourceAPI.getAll();
+      console.log('Resources API response:', response.data);
+      
+      // Check if response.data is an array
+      if (Array.isArray(response.data)) {
+        // Filter only active and bookable resources
+        const activeResources = response.data.filter(
+          r => r.status === 'ACTIVE' && r.isBookable === true
+        );
+        console.log('Active resources:', activeResources);
+        setResources(activeResources);
+      } else {
+        console.error('Resources data is not an array:', response.data);
+        setResources([]);
+      }
+    } catch (err) {
+      console.error('Error loading resources:', err);
+      console.error('Error response:', err.response);
+      toast.error(err.response?.data?.message || 'Failed to load resources');
+      setResources([]);
+    } finally {
+      setLoadingResources(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -105,12 +133,27 @@ export default function NewTicket() {
     }
   };
 
+  // Add a button to manually refresh resources
+  const handleRefreshResources = () => {
+    loadResources();
+    toast.success('Refreshing resources...');
+  };
+
   return (
     <Navbar>
       <div className="max-w-2xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Report an Issue</h1>
-          <p className="text-gray-500 mt-1">Submit a maintenance or incident ticket</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Report an Issue</h1>
+            <p className="text-gray-500 mt-1">Submit a maintenance or incident ticket</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleRefreshResources}
+            className="text-teal-600 hover:text-teal-700 text-sm flex items-center gap-1"
+          >
+            🔄 Refresh
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
@@ -121,30 +164,52 @@ export default function NewTicket() {
               value={form.title} 
               onChange={e => setForm(f => ({...f, title: e.target.value}))}
               placeholder="Brief description of the issue..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" 
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400" 
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Resource</label>
-              <select value={form.resourceId} onChange={e => setForm(f => ({...f, resourceId: e.target.value}))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
-                <option value="">None</option>
-                {resources.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              <select 
+                value={form.resourceId} 
+                onChange={e => setForm(f => ({...f, resourceId: e.target.value}))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400"
+              >
+                <option value="">-- No resource selected --</option>
+                {loadingResources ? (
+                  <option disabled>Loading resources...</option>
+                ) : (
+                  resources.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} {r.type ? `(${r.type.replace('_', ' ')})` : ''}
+                    </option>
+                  ))
+                )}
               </select>
+              {!loadingResources && resources.length === 0 && (
+                <p className="text-xs text-amber-600 mt-1">
+                  No resources available. You can still submit without selecting a resource.
+                </p>
+              )}
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Category</label>
-              <select value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+              <select 
+                value={form.category} 
+                onChange={e => setForm(f => ({...f, category: e.target.value}))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400"
+              >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Priority</label>
-              <select value={form.priority} onChange={e => setForm(f => ({...f, priority: e.target.value}))}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+              <select 
+                value={form.priority} 
+                onChange={e => setForm(f => ({...f, priority: e.target.value}))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400"
+              >
                 {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
@@ -158,7 +223,7 @@ export default function NewTicket() {
               value={form.description} 
               onChange={e => setForm(f => ({...f, description: e.target.value}))}
               placeholder="Describe the issue in detail..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" 
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400 resize-none" 
             />
           </div>
 
@@ -168,7 +233,7 @@ export default function NewTicket() {
               value={form.preferredContact} 
               onChange={e => setForm(f => ({...f, preferredContact: e.target.value}))}
               placeholder="Phone / Email / Ext..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" 
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-400" 
             />
           </div>
 
@@ -176,7 +241,7 @@ export default function NewTicket() {
             <label className="text-xs font-medium text-gray-600 mb-2 block">
               Attachments <span className="text-gray-400 font-normal">({files.length}/3 images)</span>
             </label>
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-teal-300 hover:bg-teal-50/50 transition-colors">
               <span className="text-2xl mb-2">📎</span>
               <span className="text-sm text-gray-500">Click or drag to upload images</span>
               <span className="text-xs text-gray-400 mt-1">JPG, PNG, JPEG • Max 3 files</span>
@@ -196,7 +261,7 @@ export default function NewTicket() {
                     <button 
                       type="button" 
                       onClick={() => removeFile(i)}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600"
                     >
                       ✕
                     </button>
@@ -209,7 +274,7 @@ export default function NewTicket() {
           <button 
             type="submit" 
             disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold transition-colors"
+            className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold transition-colors"
           >
             {submitting ? 'Submitting...' : 'Submit Ticket'}
           </button>
