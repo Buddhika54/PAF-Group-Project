@@ -26,6 +26,9 @@ import NewTicket from './pages/user/NewTicket';
 import TicketDetail from './pages/user/TicketDetail';
 
 import AdminTickets from './pages/admin/AdminTickets';
+import TechTickets from './pages/Technician/TechTickets';
+import TechTicketDetail from './pages/Technician/TechTicketDetail';
+import TechNewTicket from './pages/Technician/TechNewTicket';
 
 
 
@@ -143,7 +146,17 @@ function App() {
           <Route path="/tickets/:id" element={
             <PrivateRoute><TicketDetail /></PrivateRoute>
           } />
+<Route path="/technician/tickets" element={
+  <PrivateRoute><TechTickets /></PrivateRoute>
+} />
 
+<Route path="/technician/tickets/new" element={
+  <PrivateRoute><TechNewTicket /></PrivateRoute>
+} />
+
+<Route path="/technician/tickets/:id" element={
+  <PrivateRoute><TechTicketDetail /></PrivateRoute>
+} />
           {/* ── 404 Fallback ───────────────────────────── 
           <Route path="*" element={<Navigate to="/login" replace />} />*/}
 
