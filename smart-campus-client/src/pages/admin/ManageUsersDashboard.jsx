@@ -28,11 +28,13 @@ const ManageUsersDashboard = () => {
     role: 'TECHNICIAN'
   });
 
-  // EDIT USER (ROLE REMOVED ONLY HERE)
+  // EDIT USER 
   const [editUserForm, setEditUserForm] = useState({
     name: '',
     username: '',
-    email: ''
+    email: '',
+    role: 'USER || ADMIN || TECHNICIAN',
+    isActive: true
   });
 
   // FETCH USERS
@@ -98,7 +100,9 @@ const ManageUsersDashboard = () => {
     setEditUserForm({
       name: user.name || '',
       username: user.username || '',
-      email: user.email || ''
+      email: user.email || '',
+      role: user.role || 'USER',
+      isActive: user.isActive !== false
     });
     setShowEditModal(true);
   };
@@ -355,6 +359,12 @@ const ManageUsersDashboard = () => {
 
             <form onSubmit={handleUpdateUser} className="space-y-4">
 
+
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name
+                    </label>
               <input
                 className="w-full border p-3 rounded-xl"
                 value={editUserForm.name}
@@ -363,8 +373,13 @@ const ManageUsersDashboard = () => {
                 }
                 required
               />
+              </div>
 
-              <input
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Username
+                    </label>
+                    <input
                 className="w-full border p-3 rounded-xl"
                 value={editUserForm.username}
                 onChange={(e) =>
@@ -372,8 +387,14 @@ const ManageUsersDashboard = () => {
                 }
                 required
               />
+              </div>
+              
 
-              <input
+                <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email
+                    </label>  
+                    <input
                 className="w-full border p-3 rounded-xl"
                 value={editUserForm.email}
                 onChange={(e) =>
@@ -381,6 +402,8 @@ const ManageUsersDashboard = () => {
                 }
                 required
               />
+              </div>
+              
 
               {/* ROLE REMOVED FROM EDIT ONLY */}
 

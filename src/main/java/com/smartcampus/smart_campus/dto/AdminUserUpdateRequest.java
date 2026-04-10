@@ -1,9 +1,6 @@
 package com.smartcampus.smart_campus.dto;
 
 import com.smartcampus.smart_campus.model.User;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;   // You can remove this if you prefer manual getters/setters
 
 public class AdminUserUpdateRequest {
 
@@ -13,7 +10,7 @@ public class AdminUserUpdateRequest {
     private User.Role role;
     private Boolean isActive;
 
-    // ==================== Getters & Setters 
+    //  Getters & Setters 
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

@@ -152,9 +152,9 @@ public UserResponse createAdminUser(AdminUserCreateRequest request) {
         if (request.getRole() != null) {
             user.setRole((User.Role) request.getRole());
         }
-        if (request.getIsActive()) {
-            user.setIsActive(request.getIsActive());
-        }
+        if (request.getIsActive() != null) {
+    user.setIsActive(request.getIsActive());
+}
 
         User saved = userRepository.save(user);
         return new UserResponse(saved);
