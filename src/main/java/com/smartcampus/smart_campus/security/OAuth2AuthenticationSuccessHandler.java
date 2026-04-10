@@ -27,7 +27,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtUtil jwtUtil;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -69,7 +69,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         }
         userRepository.save(user);
 
-        String token = jwtUtils.generateToken(user);
+        String token = jwtUtil.generateToken(user);
         String redirectUrl = frontendUrl + "/auth/callback?token=" + token;
 
         response.sendRedirect(redirectUrl);
